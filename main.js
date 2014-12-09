@@ -9,8 +9,8 @@
 var ImageLibrary = function(divid) {
     this.images = [];
     this.div = null;
-    this.defaultWidth = 200;
-    this.defaultHeight = 200;
+    this.defaultWidth = 256;
+    this.defaultHeight = 256;
     this.OPTION_compareZoomedImages = false;
     
     
@@ -78,7 +78,10 @@ var ImageLibrary = function(divid) {
         console.log("hashing image at 3 sizes, 1x1, 2x2, & 10x10:");
         imageHasher.getHashAtScale(drawable.canvas, 1);
         imageHasher.getHashAtScale(drawable.canvas, 2);
-        imageHasher.getHashAtScale(drawable.canvas, 200);
+        imageHasher.getHashAtScale(drawable.canvas, 4);
+        imageHasher.getHashAtScale(drawable.canvas, 8);
+        imageHasher.getHashAtScale(drawable.canvas, 16);
+        imageHasher.getHashAtScale(drawable.canvas, 32);
         if (this.OPTION_compareZoomedImages) {
             var newImage = new Image();
             var data = imageHasher.getPreparedImage(drawable.canvas);
@@ -150,8 +153,8 @@ var ImageLibrary = function(divid) {
 var ImageHasher = function() {
     this.canvas = null;
     this.context = null;
-    this.maxWidth = 200;
-    this.maxHeight = 200;
+    this.maxWidth = 256;
+    this.maxHeight = 256;
     
     this.init = function() {
         if (!this.context) {
@@ -304,8 +307,13 @@ var ImageHasher = function() {
         
         data = newcanvas.getContext('2d').getImageData(0,0,newsize,newsize).data;
         var hash = [];
-        for (var i = 0; i < data.length; i=i+1) {
-            hash.push(data[i]);
+        for (var i = 0; i < data.length; i=i+4) {
+            if (data[i]==0) hash.push(0);
+            else if (data[i]==64) hash.push(1);
+            else if (data[i]==128) hash.push(2);
+            else if (data[i]==191) hash.push(3);
+            else if (data[i]==255) hash.push(4);
+            else hash.push(data[i]);
         }
         console.log("getHashAtScale(" + newsize + ")= " + hash);
     }
@@ -351,8 +359,8 @@ var Image = function() {
 var Drawable = function() {
     //pass a canvas, make it drawable
     this.imageDatas = [];
-    this.imageWidth = 200;
-    this.imageHeight = 200;
+    this.imageWidth = 256;
+    this.imageHeight = 256;
     this.maxShapes = 8;
     this.minShapes = 5;
     this.canvas = null;
@@ -365,7 +373,7 @@ var Drawable = function() {
     this.ticLengths = [];
     this.readyCallback = null;
     this.mouseDown = false;
-    this.scale = 5;
+    this.scale = 4;
     
     //Options
     this.OPTION_storeAfterMouseUP = true;
@@ -374,6 +382,7 @@ var Drawable = function() {
         this.canvas = canvas;
         this.context = canvas.getContext("2d");
         this.context.scale(this.scale, this.scale);
+        
         this.ready = false;
         if (!this.canvas) {
             console.log("ImageLibrary error, initialized with null canvas!");
@@ -386,6 +395,8 @@ var Drawable = function() {
             this.canvas.addEventListener("dblclick", this.dblclick.bind(this), false);
             this.canvas.addEventListener("mousemove", this.mousemove.bind(this), false);
             //this.imageDatas = drawable.getImageData(0,0,this.imageWidth,this.imageHeight);
+            this.context.fillStyle = "white";
+            this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
             console.log("drawable inited.");
         }
     }
@@ -402,6 +413,11 @@ var Drawable = function() {
         
         this.context.fillStyle="black";
         this.context.fillRect(mousePos.x, mousePos.y, 1, 1);
+        /* http://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+        var id = this.context.createImageData(1,1);
+        var d = id.data;
+        d[0] = 0;
+        */
         
         /*
         this.context.beginPath();
@@ -442,7 +458,13 @@ var Drawable = function() {
     }
     this.dblclick = function(event) {
         console.log("double click");
-        this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
+        //this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
+        this.clear();
+        
+    }
+    this.clear = function() {
+        this.context.fillStyle = "white";
+        this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
     }
     this.draw = function() {
         
@@ -477,7 +499,8 @@ function keypress(event) {
         imageLibrary.add(newImage);
         imageLibrary.draw();
         */
-        imageLibrary.storeIteration();
+        drawable.clear();
+//        imageLibrary.storeIteration();
     } else if (event.keyCode == 99) {
         
     } else {
