@@ -75,9 +75,10 @@ var ImageLibrary = function(divid) {
         drawable.context.imageSmoothingEnabled = false;
         drawable.context.webkitImageSmoothingEnabled = false;
         drawable.context.mozImageSmoothingEnabled = false;
+        console.log("hashing image at 3 sizes, 1x1, 2x2, & 10x10:");
         imageHasher.getHashAtScale(drawable.canvas, 1);
         imageHasher.getHashAtScale(drawable.canvas, 2);
-        imageHasher.getHashAtScale(drawable.canvas, 3);
+        imageHasher.getHashAtScale(drawable.canvas, 200);
         if (this.OPTION_compareZoomedImages) {
             var newImage = new Image();
             var data = imageHasher.getPreparedImage(drawable.canvas);
@@ -289,7 +290,7 @@ var ImageHasher = function() {
         
         this.canvas.width = this.canvas.width;
         
-        console.log("hashing image:");
+        
 
         
         var newcanvas = document.createElement("canvas");
@@ -364,7 +365,7 @@ var Drawable = function() {
     this.ticLengths = [];
     this.readyCallback = null;
     this.mouseDown = false;
-    this.scale = 5;
+    this.scale = 1;
     
     //Options
     this.OPTION_storeAfterMouseUP = true;
@@ -394,16 +395,30 @@ var Drawable = function() {
             x: Math.floor(event.clientX/this.scale - this.canvas.offsetLeft/this.scale),
             y: Math.floor(event.clientY/this.scale - this.canvas.offsetTop/this.scale)
         };
+
         return mousePos;
+    }
+    this.drawPoint = function(mousePos) {
+        
+        this.context.fillStyle="black";
+        this.context.fillRect(mousePos.x, mousePos.y, 1, 1);
+        
+        /*
+        this.context.beginPath();
+        this.context.strokeStyle = "black";
+        this.context.lineWidth = .1;
+        this.context.lineHeight = .1;
+        this.context.moveTo(mousePos.x-.1, mousePos.y);
+        this.context.lineTo(mousePos.x, mousePos.y);
+        this.context.stroke();
+        this.context.closePath();
+        //*/
     }
     this.mousedown = function(event) {
         this.mouseDown = true;
         
         var mousePos = this.getmousepos(event);
-        this.context.fillStyle="#505050";
-        //this.context.strokeStyle="#50505050";
-        //this.context.lineWidth = 1;
-        this.context.fillRect(mousePos.x, mousePos.y, 1, 1);
+        this.drawPoint(mousePos);
     }
     this.mouseup = function(event) {
         this.mouseDown = false;
@@ -417,21 +432,12 @@ var Drawable = function() {
         if (!this.mouseDown) return;
         var mousePos = this.getmousepos(event);
         //this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
-        this.context.fillStyle="#505050";
-        //this.context.strokeStyle="#00000000";
-        //this.context.strokeStyle="#FFFFFF";
-        this.context.lineWidth = 1;
-        this.context.fillRect(mousePos.x, mousePos.y, 1, 1);
-        //console.log("move");
+        this.drawPoint(mousePos);
     }
     this.click = function(event) {
         var mousePos = this.getmousepos(event);
         //this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
-        this.context.fillStyle="#505050";
-        //this.context.strokeStyle="#00000000";
-        //this.context.strokeStyle="#FFFFFF";
-        this.context.lineWidth = 1;
-        this.context.fillRect(mousePos.x, mousePos.y, 1, 1);
+        this.drawPoint(mousePos);
         console.log("click - " + this.canvas.offsetLeft);
     }
     this.dblclick = function(event) {
