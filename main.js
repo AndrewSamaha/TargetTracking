@@ -365,7 +365,7 @@ var Drawable = function() {
     this.ticLengths = [];
     this.readyCallback = null;
     this.mouseDown = false;
-    this.scale = 1;
+    this.scale = 5;
     
     //Options
     this.OPTION_storeAfterMouseUP = true;
