@@ -553,7 +553,8 @@ var ImageHasher = function() {
             var summary = 0;
             var weight = 1;
             
-            weight = .00100 / (scale_index + 1)
+ //           weight = .00100 / (scale_index + 1);
+            weight = .00010 / (scale_index + 1);
             for (var i = 0; i < diff[scale_index].hash.length; i++) {
                 summary += diff[scale_index].hash[i];
             }
