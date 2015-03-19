@@ -27,8 +27,40 @@
   shape-rendering: crispEdges;
 }
 
-/* other stuff?? */
 
+
+/* The main containers */
+#drawingcontainer
+{
+    position: relative;
+    display: inline;
+}
+#librarycontainer
+{
+    border: solid 2px;
+    width: 400px;
+    height: 400px;
+/*    overflow: auto;*/
+    overflow-y:scroll;
+    position: fixed;
+    right: 420px;
+    text-align: center;
+    /*display: inline;*/
+/*    display: inline-block;*/
+}
+#strokecontainer
+{
+    border: solid 2px;
+    width: 400px;
+    height: 400px;
+    /*overflow: auto;*/
+    overflow-y:scroll;
+    position: fixed;
+    right: 10px;
+    text-align: center;
+    /*    display: inline;*/
+/*    display: inline-block;*/
+}
 #trialcontainer
 {
     margin-left: auto;
@@ -93,13 +125,43 @@ td
 {
     font-size:200%
 }
-#stimuli
+
+/* Stuff inside the drawing container */
+#progressbar_outside
 {
-    /*display:none;*/
+    border: solid 1px;
+    width: 100px;
+    height: 10px;
+    position: absolute;
+    top: 0;
+}
+#progressbar_inside
+{
+    width: 50px;
+    height: 10px;
+    background: blue;
+    position: absolute;
+    top: 0;
+}
+
+#summatedcanvas
+{ /* used to store the cumulative effects of strokes on the current image */
+    display:none;
     border-width: 1px;
     border-style: solid;
+    position: absolute;
+    top: 15;
+}
+
+.drawable /*stimuli*/
+{ /* used to record the current stroke and display previous strokes */
+    border-width: 1px;
+    border-style: solid;
+    position: absolute;
+    top: 15;
 
 }
+
 .sample
 {
     border-width: 1px;
@@ -110,5 +172,6 @@ td
 {
     background-color: rgb(200,200,200);
     width:200px;
+    display: inline-block;
 }
 

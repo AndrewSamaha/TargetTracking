@@ -25,9 +25,9 @@ var ImageLibrary = function(divid) {
     this.init = function(divid) {
         if (divid && document.getElementById(divid)) {
             this.div = document.getElementById(divid);
-            console.log("ImageLibrary is initialized");
+            console.log("ImageLibrary is initialized for " + divid);
         } else {
-            console.log("error initializing ImageLibrary");
+            console.log("error initializing ImageLibrary for " + divid);
         }
     }
     
@@ -89,21 +89,39 @@ var ImageLibrary = function(divid) {
         
         console.log("hashing image at 3 sizes, 1x1, 2x2, & 10x10:");
         //console.log("HASH=" + JSON.stringify(hash));
-        if (this.OPTION_compareZoomedImages) {
+        if (meta && meta.crop) {
             var newImage = new Image();
             var data = imageHasher.getPreparedImage(drawable.canvas);
             newImage.data = data;
             newImage.hash = hash;
             if (meta) newImage.meta = meta;
+            /*
             imageLibrary.add(newImage);
             imageLibrary.draw();
+            */
+            this.add(newImage);
+            this.draw();
+        } else if (this.OPTION_compareZoomedImages) {
+            var newImage = new Image();
+            var data = imageHasher.getPreparedImage(drawable.canvas);
+            newImage.data = data;
+            newImage.hash = hash;
+            if (meta) newImage.meta = meta;
+            /*
+            imageLibrary.add(newImage);
+            imageLibrary.draw();
+            */
+            this.add(newImage);
+            this.draw();
         } else {
             var newImage = new Image();
             newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
             newImage.hash = hash;
             if (meta) newImage.meta = meta;
-            imageLibrary.add(newImage);
-            imageLibrary.draw();
+/*            imageLibrary.add(newImage);
+            imageLibrary.draw();*/
+            this.add(newImage);
+            this.draw();
         }
         
         //console.log("imageLibrary.size=" + Math.floor(this.size()/100000)/10 + " mb");
@@ -594,58 +612,7 @@ var ImageLibrary = function(divid) {
         //var values = d3.range(1000).map(d3.random.bates(10));
         //
         /*
-        Mistress Summer is smeltering
-        Like Georgia in July
-        Crumbling beneath her hot dominance
-        Submitting to her perfect, natural beauty
-        If only I could visit more often
-        To lose myself in her hypnotic green eyes
-        
-        
-        One task in the morning
-        Two tasks at night
-        But nothing can release me
-        From her beautiful sight
-        
-        One two three four
-        I owe Mistress Summer more
-        Five six seven eight
-        Serving Mistress Summer late
-        Nine ten eleven twelve
-        Deeper in my mind she dwells
-        
-        I promise to obey
-        When she tells me to write
-        
-        Her words, an order
-        I don't want to follow
-        Something embarrasing
-        The heat of humiliation
-        Helplessness, these feelings
-        And the certainty of my obedience
-        Creates the ache
-        The carrot of my subsistence
-        
-        Yes Mistress Summer
-        Your eyes hypnotic
-        Yes Mistress Summer
-        Your will be done
-        Yes Mistress Summer
-        Forever and ever
-        Yes Mistress Summer
-        A bright bright sun
-        
-        It begins with vulnerability
-        An empty hole inside
-        Promises ever after
-        Only make it wider
-        
-        electric, in awe
-        hypnotized and lost
-        in the turbulance
-        her gorgeous green
-        eyes that see
-        my inadequacy
+
         
         
         
@@ -998,6 +965,129 @@ var ImageHasher = function() {
         var bottom = 0;
         var top = height;
         var firstrow = "";
+        var secondrow = "";
+        var thirdrow = "";
+        
+        var min = 255;
+        var max = 0;
+        var numFilled = 0;
+        
+        this.canvas.width = this.canvas.width;
+        
+        console.log("preparing image:");
+        console.log("\tlength=" + data.length);
+        console.log("\twidth=" + width);
+        console.log("\theight=" + height);
+        
+        if (context) console.log("\tcontext=defined");
+        else console.log("\tcontext=UNDEFINED!");
+        
+        if (data) console.log("\tdata=defined");
+        else console.log("\tdata=UNDEFINED!");
+        
+        for (var i = 0; i <= data.length; i=i+4) {
+            
+            var x = (i/4) % width;
+            var y = Math.floor((i/4) / width);
+            if (y == 2) {
+                firstrow += data[i];
+                secondrow += data[i+1];
+                thirdrow += data[i+2];
+                /*
+                if (data[i+3]) firstrow += "X";
+                else firstrow += "-";*/
+            }
+            
+            if (!data[i]) {
+                if (x >= 1) {
+                    //console.log("left (old, new): " + left + "," + x);
+                    left = Math.min(left, x);
+                }
+                right = Math.max(right, x);
+                top = Math.min(top, y);
+                if (y <= 255) bottom = Math.max(bottom, y);
+            }
+            if (x >= 1 && y >= 1) {
+                min = Math.min(min,data[i]);
+                max = Math.max(max,data[i]);
+            }
+        }
+        
+        if ((bottom - top) > (right - left)) right = left + (bottom - top);
+        else bottom = top + (right - left);
+        
+        //console.log("firstrow:" + firstrow);
+        //console.log("secondrow:" + secondrow);
+        //console.log("thirdrow:" + thirdrow);
+        console.log("prepared image:");
+        console.log("\tleft-right: " + left + "-" + right);
+        console.log("\ttop-bottom: " + top + "-" + bottom);
+        console.log("\tmax: " + max);
+        console.log("\tmin: " + min);
+        
+        if (left == width && right == 0 && bottom == 0 && top == height) {
+            return image;
+        } else {
+            var scaled_width = right - left;
+            var scaled_height = bottom - top;
+            var scaleX = this.maxWidth / scaled_width;
+            var scaleY = this.maxHeight / scaled_height;
+            
+            console.log("\tleft=" + left);
+            console.log("\ttop=" + top);
+            console.log("\tscaled_width=" + scaled_width);
+            console.log("\tscaled_height=" + scaled_height);
+            console.log("\tthis.maxWidth= [" + this.maxWidth + "]");
+            console.log("\tthis.maxHeight=[" + this.maxHeight + "]");
+            console.log("\tscaleX,y=" + scaleX + "," + scaleY);
+
+            
+            //image = context.getImageData(left, top, scaled_width, scaled_height);
+            
+            /*
+            //this works but it doesn't rescale the image
+            this.context.putImageData(image, 0, 0);
+            return this.context.getImageData(0, 0, this.maxWidth, this.maxHeight);
+            */
+            
+            /*
+            //works, but only rescales the original image
+            var newcanvas = document.createElement("canvas");
+            newcanvas.width = image.width;
+            newcanvas.height= image.height;
+            newcanvas.getContext('2d').putImageData(image,0,0);
+            context.scale( this.maxWidth/ scaled_width, this.maxHeight / scaled_height);
+            context.drawImage(newcanvas, 0, 0);
+            return newcanvas.getContext('2d').getImageData(0, 0, scaled_width, scaled_height);
+            */
+            
+            var newcanvas = document.createElement("canvas");
+            newcanvas.width = image.width;
+            newcanvas.height= image.height;
+            newcanvas.getContext('2d').drawImage(
+                canvas,
+                left, top, scaled_width, scaled_height,
+                0, 0, this.maxWidth, this.maxHeight
+            );
+            return newcanvas.getContext('2d').getImageData(0, 0, this.maxWidth, this.maxHeight);
+
+        }
+    }
+    
+    this.getCroppedImage = function(canvas) {
+        //returns a centered and zoomed image
+        var width = canvas.width;
+        var height = canvas.height;
+        var context = canvas.getContext('2d');
+        var image = context.getImageData(0,0,width,height);
+        var data = image.data;
+        
+        //initialize some starting values
+        var left = width;
+        var right = 0;
+        var bottom = 0;
+        var top = height;
+        var firstrow = "";
         
         var min = 255;
         var max = 0;
@@ -1092,6 +1182,8 @@ var ImageHasher = function() {
 
         }
     }
+
+    
     this.getHashAtScaleOLD = function(canvas, newsize) {
         var width = canvas.width;
         var height = canvas.height;
@@ -1284,8 +1376,8 @@ var Image = function() {
 var Drawable = function() {
     //pass a canvas, make it drawable
     this.imageDatas = [];
-    this.imageWidth = 256;
-    this.imageHeight = 256;
+    this.imageWidth = 256; //256
+    this.imageHeight = 256; //256
     this.maxShapes = 8;
     this.minShapes = 5;
     this.canvas = null;
@@ -1298,14 +1390,43 @@ var Drawable = function() {
     this.ticLengths = [];
     this.readyCallback = null;
     this.mouseDown = false;
-    this.scale = 4;
+    this.scale = 4; //4 (seems to be important for loading images from files)
+    this.container = null;
+    this.progressbar_outside = null;
+    this.progressbar_inside = null;
+    this.startTime = 0;
+    this.maxTime = 10000;
+    this.finishedCanvases = [];
+    this.drawingcontainer = null;
+    this.summatedcanvas = null;
+    this.summatedcontext = null;
     
     //Options
     this.OPTION_storeAfterMouseUP = true;
     
     this.init = function(canvas, drawable) {
+        if (document.getElementById("drawingcontainer")) this.drawingcontainer = document.getElementById("drawingcontainer");
+        if (document.getElementById("progressbar_outside")) this.progressbar_outside = document.getElementById("progressbar_outside");
+        if (document.getElementById("progressbar_inside")) this.progressbar_inside = document.getElementById("progressbar_inside");
+        if (document.getElementById("summatedcanvas")) this.summatedcanvas = document.getElementById("summatedcanvas");
+        
+        //Set progressbar size
+        if (this.progressbar_outside && this.progressbar_inside) {
+            this.progressbar_outside.setAttribute("style","width: " + this.imageWidth + "px");
+            this.setProgress(.5);
+        }
+        
         this.canvas = canvas;
         this.context = canvas.getContext("2d");
+        this.summatedcontext = this.summatedcanvas.getContext("2d");
+        
+        this.prepareNewCanvas();
+        this.prepareSummatedCanvas();
+    }
+    
+    this.prepareNewCanvas = function() {
+        this.canvas.width = this.imageWidth;
+        this.canvas.height = this.imageHeight;
         //this.context.scale(this.scale, this.scale);
         this.context.scale(1, 1);
         
@@ -1321,24 +1442,45 @@ var Drawable = function() {
             this.canvas.addEventListener("dblclick", this.dblclick.bind(this), false);
             this.canvas.addEventListener("mousemove", this.mousemove.bind(this), false);
             //this.imageDatas = drawable.getImageData(0,0,this.imageWidth,this.imageHeight);
-            this.context.fillStyle = "white";
-            this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
+            
+            //Trying to make the image transparent
+            //this.context.fillStyle = "white";
+            //this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
             console.log("drawable inited.");
         }
     }
+    
+    this.prepareSummatedCanvas = function() {
+        this.summatedcanvas.width = this.imageWidth;
+        this.summatedcanvas.height = this.imageHeight;
+    }
+    
+    this.setProgress = function(percent) {
+        this.progressbar_inside.setAttribute("style","width: " + (percent*this.imageWidth) + "px");
+    }
+    
     this.getmousepos = function(event) {
+        var rect = this.canvas.getBoundingClientRect();
         event = event || window.event; // IE-ism
         var mousePos = {
+            x: (event.clientX - rect.left) / this.scale,
+            y: (event.clientY - rect.top) / this.scale
+            /*
             x: Math.floor(event.clientX/this.scale - this.canvas.offsetLeft/this.scale),
-            y: Math.floor(event.clientY/this.scale - this.canvas.offsetTop/this.scale)
+            y: Math.floor(event.clientY/this.scale - this.canvas.offsetTop/this.scale)*/
         };
 
         return mousePos;
     }
+    
+    this.startTimer = function() {
+        this.startTime = Date.now();
+    }
+    
     this.drawPoint = function(mousePos) {
-        
+        if (this.startTime == 0) this.startTimer();
         this.context.fillStyle="black";
-        this.context.fillRect(mousePos.x, mousePos.y, 1, 1);
+        this.context.fillRect(mousePos.x*this.scale, mousePos.y*this.scale, this.scale, this.scale);
         /* http://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
         var id = this.context.createImageData(1,1);
         var d = id.data;
@@ -1356,44 +1498,116 @@ var Drawable = function() {
         this.context.closePath();
         //*/
     }
+    
     this.mousedown = function(event) {
         this.mouseDown = true;
         
         var mousePos = this.getmousepos(event);
         this.drawPoint(mousePos);
     }
+    
     this.mouseup = function(event) {
         this.mouseDown = false;
-        if (this.OPTION_storeAfterMouseUP) imageLibrary.storeIteration();
+        if (this.OPTION_storeAfterMouseUP) this.store();
     }
+    
     this.mouseout = function(event) {
         this.mouseDown = false;
-        if (this.OPTION_storeAfterMouseUP && this.mouseDown) imageLibrary.storeIteration();
+        if (this.OPTION_storeAfterMouseUP && this.mouseDown) this.store();
     }
+    
     this.mousemove = function(event) {
         if (!this.mouseDown) return;
         var mousePos = this.getmousepos(event);
         //this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
         this.drawPoint(mousePos);
     }
+    
     this.click = function(event) {
         var mousePos = this.getmousepos(event);
         //this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
         this.drawPoint(mousePos);
         console.log("click - " + this.canvas.offsetLeft);
     }
+    
     this.dblclick = function(event) {
         console.log("double click");
         //this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
         this.clear();
         
     }
+    
+    this.addCanvasToSummation = function(newcanvas) {
+        var summatedcanvas  = this.summatedcanvas;
+        var summatedcontext = summatedcanvas.getContext("2d");
+        var summatedimage = summatedcontext.getImageData(0,0,this.imageWidth,this.imageHeight);
+        var summateddata = summatedimage.data;
+
+        var newcontext = newcanvas.getContext("2d");
+        var newimage = newcontext.getImageData(0,0,this.imageWidth,this.imageHeight);
+        var newdata = newimage.data;
+        
+        if (newdata.length != summateddata.length)
+            throw("addCanvasToSummation: ERROR! newdata.length(" + newdata.length+") != summateddata.length(" + summateddata.length + ")");
+        
+        console.log("addCanvasToSummation: newimage.data.length=" + newdata.length + " summateddata.length=" + summateddata.length);
+        for (var i = 0; i < newdata.length; i=i+1) {
+            if (i % 177 == 0) console.log("\t" + i + ". " + summateddata[i] + " <> " + newdata[i] + " = " + Math.max(summateddata[i], newdata[i]));
+            summateddata[i] = Math.max(summateddata[i], newdata[i]);
+        }
+        console.log("addCanvasToSummation: newimage.data.length=" + newdata.length + " summateddata.length=" + summateddata.length);
+        summatedcontext.putImageData(summatedimage, 0, 0);
+    }
+    
+    this.createNewCanvas = function() {
+        this.canvas.id = "finishedCanvas" + this.finishedCanvases.length;
+        this.finishedCanvases.push(this.canvas);
+        
+        var newcanvas = document.createElement("canvas");
+        newcanvas.width =  this.defaultWidth;
+        newcanvas.height = this.defaultHeight;
+        newcanvas.id = "stimuli";
+        newcanvas.className = "drawable";
+        this.canvas = newcanvas;
+        
+        var context = newcanvas.getContext("2d");
+        this.context = context;
+        
+        this.drawingcontainer.appendChild(newcanvas);
+        this.prepareNewCanvas();
+    }
+    
+    this.store = function() {
+        this.addCanvasToSummation(this.canvas);     //add the last stroke to our summated image
+        strokeLibrary.storeIteration({crop: true}); //add the stroke to the stroke library
+        this.createNewCanvas();                     //create a new canvas to draw on
+//        this.clear();
+        console.log("saved in strokeLibrary");
+    }
+    
     this.clear = function() {
         this.context.fillStyle = "white";
         this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
     }
+    
+    this.timesUp = function() {
+        imageLibrary.storeIteration();
+        this.startTime = 0;
+        this.setProgress(0);
+        this.addCanvasToSummation(this.canvas);
+        imageLibrary.storeIteration();
+        this.clear();
+    }
+    
     this.draw = function() {
-        
+        if (this.startTime != 0) {
+            if (Date.now() - this.startTime >= this.maxTime) {
+                this.timesUp();
+                return;
+            } else {
+                this.setProgress((Date.now() - this.startTime) / this.maxTime);
+            }
+        }
     }
 }
 
@@ -1401,6 +1615,7 @@ var Drawable = function() {
 var lastTicTime = 0;
 var drawable;
 var imageLibrary = null;
+var strokeLibrary = null;
 var imageHasher = null;
 var index = 0;
 var trial = null;
@@ -1489,7 +1704,7 @@ function init() {
     lastTicTime = Date.now();
     
     trialcontainerdiv = document.getElementById("trialcontainer");
-    
+   
     
     var stimulicanvas = document.getElementById("stimuli");
     
@@ -1498,8 +1713,13 @@ function init() {
     drawable = new Drawable();
     drawable.init(stimulicanvas, true);
 
+    strokeLibrary = new ImageLibrary("strokecontainer");
+    strokeLibrary.init("strokecontainer");
+
+
     imageLibrary = new ImageLibrary("librarycontainer");
     imageLibrary.init("librarycontainer");
+    
     
     imageHasher = new ImageHasher();
     imageHasher.init();
@@ -1517,7 +1737,7 @@ function tic() {
     var delta = Date.now() - lastTicTime;
     lastTicTime = Date.now();
     
-    if (testimages.length < testimages_filenames.length) {
+    if (0 && testimages.length < testimages_filenames.length) {
         var stimulicanvas = document.getElementById("stimuli");
         
         
@@ -1546,6 +1766,7 @@ function tic() {
         
     } else {
         //drawable.context.drawImage(testimages[0]);
+        drawable.draw();
     }
     //if (trial) trial.ticDraw(trialcontainerdiv);
 }
