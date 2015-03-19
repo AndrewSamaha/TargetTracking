@@ -12,7 +12,8 @@ var ImageLibrary = function(divid) {
     this.defaultWidth = 256;
     this.defaultHeight = 256;
     this.OPTION_compareZoomedImages = false;
-    
+    this.nodes = [];
+    this.links = [];
     
     if (divid && document.getElementById(divid)) {
         this.div = document.getElementById(divid);
@@ -72,8 +73,10 @@ var ImageLibrary = function(divid) {
         
         this.drawTable();
     }
-    this.storeIteration = function() {
+    this.storeIteration = function(meta) {
+    
         console.log("imageLibrary.storeIteration XX n=" + this.images.length);
+        console.log("\tmeta=" + JSON.stringify(meta));
         drawable.context.imageSmoothingEnabled = false;
         drawable.context.webkitImageSmoothingEnabled = false;
         drawable.context.mozImageSmoothingEnabled = false;
@@ -91,18 +94,653 @@ var ImageLibrary = function(divid) {
             var data = imageHasher.getPreparedImage(drawable.canvas);
             newImage.data = data;
             newImage.hash = hash;
+            if (meta) newImage.meta = meta;
             imageLibrary.add(newImage);
             imageLibrary.draw();
         } else {
             var newImage = new Image();
             newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
             newImage.hash = hash;
+            if (meta) newImage.meta = meta;
             imageLibrary.add(newImage);
             imageLibrary.draw();
         }
         
         //console.log("imageLibrary.size=" + Math.floor(this.size()/100000)/10 + " mb");
     }
+    this.drawForce = function() {
+        //create the data structure
+        console.log("drawForce: creating data structure for nodes and links");
+        this.nodes = [];
+        this.links = [];
+        
+        for (var rowi = 0; rowi < this.images.length; rowi++) {
+            this.nodes.push({name: this.images[rowi].meta.name, group: this.images[rowi].meta.group, image: this.images[rowi]});
+        }
+        
+        for (var rowi = 0; rowi < this.nodes.length; rowi++) {
+            for (var coli = 0; coli < this.nodes.length; coli++) {
+                
+                var exists = false;
+                for (var li = 0; li < this.links.length; li++) {
+                    var link = this.links[li];
+                    if ((link.source == rowi && link.target == coli) || (link.source == coli && link.target == rowi)) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    var value = Math.floor(
+                                    Math.pow(
+                                        imageHasher.dist(this.nodes[coli].image.hash, this.nodes[rowi].image.hash),4
+                                    )
+                                );
+                    this.links.push({source: coli, target: rowi, value: value});
+                }
+            }
+        }
+        
+        //normalize link values between 0 and 1
+        var max = -1;
+        for (var i = 0; i < this.links.length; i++)
+            if (this.links[i].value > max) max = this.links[i].value;
+    
+        for (var i = 0; i < this.links.length; i++)
+            this.links[i].value = this.links[i].value / max;
+        
+        
+        // Draw the force
+        var width = 960,
+            height = 500;
+
+        var color = d3.scale.category20();
+
+        var force = d3.layout.force()
+            .charge(-12)
+//            .linkDistance(300)
+            .linkDistance(function(d) { return d.value*200; })
+            .size([width, height]);
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+    
+        force
+            .nodes(this.nodes)
+            .links(this.links)
+            .start();
+
+        var link = svg.selectAll(".link")
+                .data(this.links)
+                .enter().append("line")
+                .attr("class", "link")
+                .style("stroke-width", function(d) { return 1; /*Math.sqrt(Math.sqrt(Math.sqrt(d.value)));*/ });
+
+        var node = svg.selectAll(".node")
+            .data(this.nodes)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", 5)
+            .style("fill", function(d) { return color(d.group); })
+            .call(force.drag);
+
+        node.append("title")
+            .text(function(d) { return d.name; });
+
+        force.on("tick", function() {
+            link.attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
+            node.attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; });
+        });
+
+    
+    }
+    
+    this.drawForcePercentile = function(p) {
+        //create the data structure
+
+        console.log("drawForcePercentile: creating data structure for nodes and links, p = " + p);
+        this.nodes = [];
+        this.links = [];
+        maxLinks = 2;
+        
+        function linksort(a,b) {
+            if (a.value < b.value) return -1;
+            else if (a.value > b.value) return 1;
+            else return 0;
+        }
+        
+        for (var rowi = 0; rowi < this.images.length; rowi++) {
+            this.nodes.push({name: this.images[rowi].meta.name, group: this.images[rowi].meta.group, image: this.images[rowi]});
+        }
+        
+        for (var rowi = 0; rowi < this.nodes.length; rowi++) {
+            for (var coli = 0; coli < this.nodes.length; coli++) {
+                
+                var exists = false;
+                for (var li = 0; li < this.links.length; li++) {
+                    var link = this.links[li];
+                    if ((coli == rowi) || (link.source == rowi && link.target == coli) || (link.source == coli && link.target == rowi)) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    var value;
+                    value = Math.floor(
+                                    Math.pow(
+                                        10,imageHasher.dist(this.nodes[coli].image.hash, this.nodes[rowi].image.hash)
+                                    )
+                                );
+                    value = Math.floor(
+                                    Math.log(
+                                        imageHasher.dist(this.nodes[coli].image.hash, this.nodes[rowi].image.hash)
+                                    )
+                                );
+                    value = imageHasher.dist(this.nodes[coli].image.hash, this.nodes[rowi].image.hash);
+                    this.links.push({source: coli, target: rowi, value: value});
+                }
+            }
+        }
+        
+        
+        //sort the links
+        if (this.links.length >= 10) {
+            this.links.sort(linksort);
+            var starting_index = Math.max(0,Math.min(1,p));
+            starting_index = Math.round(p*this.links.length);
+            console.log("chopping links");
+            console.log("\toriginal  size=" + this.links.length + " p=" + p);
+            console.log("\tstarting index=" + starting_index);
+            console.log("\tnumber of elements to cut=" + (this.links.length-starting_index));
+
+            this.links.splice(starting_index, this.links.length-starting_index);
+        }
+        
+        //normalize link values between 0 and 1
+        var max = -1;
+        var min = "undefined";
+        for (var i = 0; i < this.links.length; i++) {
+            if (min == "undefined") {
+                console.log("\tmin == undefined, now setting min to something else");
+                min = this.links[i].value;
+            }
+
+            if (this.links[i].value > max) max = this.links[i].value;
+            else if (this.links[i].value < min) min = this.links[i].value;
+            
+            if (min != "undefined" && this.links[i].value < min) min = this.links[i].value;
+        }
+        console.log("rangeX: " + min + " to " + max);
+        if (min == "undefined")
+            for (var i = 0; i < this.links.length; i++)
+                this.links[i].value = (this.links[i].value) / max;
+        else
+            for (var i = 0; i < this.links.length; i++)
+                this.links[i].value = (this.links[i].value-min) / max;
+
+        // Draw the force
+        var width = 960,
+            height = 500;
+
+        var color = d3.scale.category20();
+
+        var force = d3.layout.force()
+            .charge(-10 *this.links.length) //-1000
+//            .linkDistance(300)
+//            .linkDistance(function(d) { return d.value*200; })
+            //.linkDistance(50)
+            .linkStrength(function(d) { return 1-d.value; })
+            .size([width, height]);
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+    
+        force
+            .nodes(this.nodes)
+            .links(this.links)
+            .start();
+
+        var link = svg.selectAll(".link")
+                .data(this.links)
+                .enter().append("line")
+                .attr("class", "link")
+                .style("stroke-width", function(d) { return 1; /*Math.sqrt(Math.sqrt(Math.sqrt(d.value)));*/ });
+
+        var node = svg.selectAll(".node")
+            .data(this.nodes)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", 5)
+            .style("fill", function(d) { return color(d.group); })
+            .call(force.drag);
+
+        node.append("title")
+            .text(function(d) { return d.name; });
+
+        node.append("text")
+            .attr("dx", 12)
+            .attr("dy", ".35em")
+            .text(function(d) { return "wacka flacka"; });
+        
+        force.on("tick", function() {
+            link.attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
+            node.attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; });
+                
+            //node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        });
+
+    
+    }
+    
+    this.drawForcePercentile_Dist_Weight = function(p,dist_f,weight_f) {
+        //create the data structure
+
+        console.log("drawForcePercentile: creating data structure for nodes and links, p = " + p);
+        this.nodes = [];
+        this.links = [];
+        maxLinks = 2;
+        
+        function linksort(a,b) {
+            if (a.value < b.value) return -1;
+            else if (a.value > b.value) return 1;
+            else return 0;
+        }
+        
+        for (var rowi = 0; rowi < this.images.length; rowi++) {
+            this.nodes.push({name: this.images[rowi].meta.name, group: this.images[rowi].meta.group, image: this.images[rowi]});
+        }
+        
+        for (var rowi = 0; rowi < this.nodes.length; rowi++) {
+            for (var coli = 0; coli < this.nodes.length; coli++) {
+                
+                var exists = false;
+                for (var li = 0; li < this.links.length; li++) {
+                    var link = this.links[li];
+                    if ((coli == rowi) || (link.source == rowi && link.target == coli) || (link.source == coli && link.target == rowi)) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    var value;
+                    value = dist_f(this.nodes[coli].image.hash, this.nodes[rowi].image.hash, weight_f);
+                    this.links.push({source: coli, target: rowi, value: value});
+                }
+            }
+        }
+        
+        
+        //sort the links
+        if (this.links.length >= 10) {
+            this.links.sort(linksort);
+            var starting_index = Math.max(0,Math.min(1,p));
+            starting_index = Math.round(p*this.links.length);
+            console.log("chopping links");
+            console.log("\toriginal  size=" + this.links.length + " p=" + p);
+            console.log("\tstarting index=" + starting_index);
+            console.log("\tnumber of elements to cut=" + (this.links.length-starting_index));
+
+            this.links.splice(starting_index, this.links.length-starting_index);
+        }
+        
+        //normalize link values between 0 and 1
+        var max = -1;
+        var min = "undefined";
+        for (var i = 0; i < this.links.length; i++) {
+            if (min == "undefined") {
+                console.log("\tmin == undefined, now setting min to something else");
+                min = this.links[i].value;
+            }
+
+            if (this.links[i].value > max) max = this.links[i].value;
+            else if (this.links[i].value < min) min = this.links[i].value;
+            
+            if (min != "undefined" && this.links[i].value < min) min = this.links[i].value;
+        }
+        console.log("rangeX: " + min + " to " + max);
+        if (min == "undefined")
+            for (var i = 0; i < this.links.length; i++)
+                this.links[i].value = (this.links[i].value) / max;
+        else
+            for (var i = 0; i < this.links.length; i++)
+                this.links[i].value = (this.links[i].value-min) / max;
+
+        // Draw the force
+        var width = 960,
+            height = 800;
+
+        var color = d3.scale.category20();
+// Works ok:
+/*
+    .charge(-10 *this.links.length) //-1000
+    .linkStrength(function(d) { return 1-d.value; })
+*/
+
+// i don't know
+/*
+    .charge(-1000) //-1000
+    .linkDistance(function(d) { return d.value*200; })
+
+    
+ 
+*/
+        var force_type = 1; //1 = as link distance, 2 = as link strength
+        var force;
+/*
+        var force = d3.layout.force()
+            .charge(-1000) //-1000
+//            .linkDistance(300)
+            .linkDistance(function(d) { return d.value*200; })
+            //.linkDistance(50)
+            //.linkStrength(function(d) { return 1-d.value; })
+            .size([width, height]);
+*/
+        var force;
+        if (force_type == 2) {
+            // = d3.layout.force()
+            force = d3.layout.force()
+                .linkDistance(function(d) { return d.value*200; })
+                .size([width, height]);
+        } else {
+            force = d3.layout.force()
+                .charge(-4000) //-1000
+                .linkStrength(function(d) { return 1-d.value; })
+                .size([width, height]);
+        }
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+       /* svg.append("rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("fill", "red");
+*/
+    
+        //Create a backup copy of the links array
+        this.links_backup = JSON.parse(JSON.stringify(this.links));
+        
+        force
+            .gravity(.2) //default is .1
+            .nodes(this.nodes)
+            .links(this.links)
+            .start();
+
+        var link = svg.selectAll(".link")
+                .data(this.links)
+                .enter().append("line")
+                .attr("class", "link")
+                .style("stroke-width", function(d) { return 1; /*Math.sqrt(Math.sqrt(Math.sqrt(d.value)));*/ });
+
+        var node = svg.selectAll(".node")
+            .data(this.nodes)
+            //.enter().append("circle")
+            .enter().append("g")
+            .attr("class", "node")
+//            .attr("r", 5)
+//            .style("fill", function(d) { return color(d.group); })
+            .on("click", click)
+            .call(force.drag);
+
+        node.append("image")
+            .attr("xlink:href", function(d) {return d.name;}) //"https://github.com/favicon.ico")
+            .attr("x", -25)
+            .attr("y", -25)
+            .attr("width", 50)
+            .attr("height", 50)
+            .attr("border", 10);
+        
+        node.append("rect")
+            .attr("x",-27)
+            .attr("y", -27)
+            .attr("width",52)
+            .attr("height", 52)
+            .attr("fill","none")
+            .attr("stroke", "black");
+  
+  /*
+        node.append("text")
+            .attr("dx", 12)
+            .attr("dy", ".35em")
+            //.attr("x", function(d) { return d.x; })
+            //.attr("y", function(d) { return d.y; })
+            .text(function(d) { return d.name; });
+    */
+        node.append("title")
+            .text(function(d) { return d.name; });
+        
+        
+      
+        
+        
+        force.on("tick", function() {
+            link.attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
+            node.attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; });
+                
+            node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        });
+        
+        function click(d) {
+            links = force.links();
+            nodes = force.nodes();
+            
+            console.log("simulating the deletion of links:");
+            links.forEach(function(link, index, array) {
+                if (link.target != d && link.source != d) { console.log("delete link " + index); }
+            });
+            
+            //delete all links
+            nodes.forEach(function(target) {
+                
+            });
+            //restart();
+            //*/
+        }
+        
+        this.drawHistogram((function() {
+            var links = force.links();
+            var nodes = force.nodes();
+            var values = [];
+            links.forEach(function(link,index,array) {
+                values.push(link.value);
+            });
+            return values;
+        })());
+        
+        this.drawHistogram((function() {
+            var links = force.links();
+            var nodes = force.nodes();
+            var values = [];
+            var names = [];
+            nodes.forEach(function(node, nodeindex, nodearray) {
+                var nodeSum = 0;
+                var numLinks = 0;
+                links.forEach(function(link, linkindex, linkarray) {
+                    if (Math.random() > .8) {
+//                        console.log("comparing nodeindex["+nodeindex+"] to link.source["+link.source+"] and link.target["+link.target+"]");
+                    }
+                    if (link.source == node || link.target == node) {
+                        nodeSum += link.value;
+                        numLinks++;
+                    }
+                });
+                values.push(nodeSum / numLinks);
+                names.push(node.name);
+            });
+            return {values: values, extras: names};
+        })());
+    }
+    
+    this.drawHistogram = function(values) {
+        // Generate a Bates distribution of 10 random variables.
+        //var values = d3.range(1000).map(d3.random.bates(10));
+        //
+        /*
+        Mistress Summer is smeltering
+        Like Georgia in July
+        Crumbling beneath her hot dominance
+        Submitting to her perfect, natural beauty
+        If only I could visit more often
+        To lose myself in her hypnotic green eyes
+        
+        
+        One task in the morning
+        Two tasks at night
+        But nothing can release me
+        From her beautiful sight
+        
+        One two three four
+        I owe Mistress Summer more
+        Five six seven eight
+        Serving Mistress Summer late
+        Nine ten eleven twelve
+        Deeper in my mind she dwells
+        
+        I promise to obey
+        When she tells me to write
+        
+        Her words, an order
+        I don't want to follow
+        Something embarrasing
+        The heat of humiliation
+        Helplessness, these feelings
+        And the certainty of my obedience
+        Creates the ache
+        The carrot of my subsistence
+        
+        Yes Mistress Summer
+        Your eyes hypnotic
+        Yes Mistress Summer
+        Your will be done
+        Yes Mistress Summer
+        Forever and ever
+        Yes Mistress Summer
+        A bright bright sun
+        
+        It begins with vulnerability
+        An empty hole inside
+        Promises ever after
+        Only make it wider
+        
+        electric, in awe
+        hypnotized and lost
+        in the turbulance
+        her gorgeous green
+        eyes that see
+        my inadequacy
+        
+        
+        
+        
+        //*/
+        
+        var extras = null;
+        if (values.hasOwnProperty("values")) {
+            extras = values.extras;
+            values = values.values;
+        }
+        
+        console.log("drawHistogram, value=" + values);
+        // A formatter for counts.
+        var formatCount = d3.format(",.0f");
+        
+        var margin = {top: 10, right: 30, bottom: 30, left: 30},
+        width = (960 - margin.left - margin.right)/2,
+        height = (500 - margin.top - margin.bottom) / 2;
+        
+        var x = d3.scale.linear()
+        .domain([0, 1])
+        .range([0, width]);
+        
+        // Generate a histogram using twenty uniformly-spaced bins.
+        var data = d3.layout.histogram()
+        .bins(x.ticks(20))
+        (values);
+        
+        console.log(JSON.stringify(data));
+        
+        var y = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) { return d.y; })])
+        .range([height, 0]);
+        
+        var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+        
+        var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+        var bar = svg.selectAll(".bar")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "bar")
+        .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+        
+        bar.append("rect")
+        .attr("x", 1)
+        .attr("width", x(data[0].dx) - 1)
+        .attr("height", function(d) { return height - y(d.y); });
+        
+        bar.append("text")
+        .attr("dy", ".75em")
+        .attr("y", 6)
+        .attr("x", x(data[0].dx) / 2)
+        .attr("text-anchor", "middle")
+        .text(function(d) {
+            //return formatCount(d.y);
+            console.log("d"+d.x+">"+JSON.stringify(d));
+            if (extras) return JSON.stringify(extras);
+            return (d.x);
+        });
+        
+        var histogram_images = [];
+        if (extras) extras.forEach(function(filename) {
+            for (var x = 0; x < 1; x+=.05) {
+                    
+            }
+        });
+        
+        if (extras && 0) {
+            bar.append("image")
+            .attr("xlink:href", function(d) {
+                
+                return d.name;
+            })
+            .attr("x", -25)
+            .attr("y", -25)
+            .attr("width", 50)
+            .attr("height", 50)
+            .attr("border", 10);
+        }
+        svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    }
+
+    
     this.drawTable = function() {
         var table = document.createElement('TABLE');
         table.border = '1';
@@ -572,6 +1210,38 @@ var ImageHasher = function() {
         return Math.sqrt(sum);
 
     }
+    this.distWeighted = function(hash1, hash2, weight_function) {
+        var diff = this.diff(hash1, hash2);
+        var dimensions = [];
+        
+        for (var scale_index = 0; scale_index < diff.length; scale_index++) {
+            var summary = 0;
+            var weight = 1;
+            
+ //           weight = .00100 / (scale_index + 1);
+            weight = weight_function(scale_index);
+            for (var i = 0; i < diff[scale_index].hash.length; i++) {
+                summary += diff[scale_index].hash[i];
+            }
+            summary = summary * summary * weight;
+            
+            dimensions.push(summary);
+        }
+        
+        var sum=0;
+        for (var i = 0; i < dimensions.length; i++)
+        {
+            sum += dimensions[i];
+        }
+        
+        return Math.sqrt(sum);
+
+    }
+    this.weightFunction = function(scaleIndex) {
+        return (.00010 / (scaleIndex + 1));
+    }
+
+
 }
 function hash(data) {
     var hash = [];
@@ -742,21 +1412,25 @@ var incorrects = 0;
 var trialaccuracy = [];
 
 var testimages_filenames = [
-    "images/bbdraw1.jpg",
-    "images/bbdraw2.jpg",
-    "images/hbdraw1.jpg",
-    "images/bbhouse1.jpg",
-    "images/bbhouse2.jpg",
-    "images/Copy\ of\ hbdraw\ 5\ all\ slight\ move.jpg",
-    "images/hbdraw\ 5\ slight\ move.jpg",
-    "images/hbdraw2.jpg",
-    "images/hbdraw3.jpg",
-    "images/hbdraw4.jpg",
-    "images/hbdraw5.jpg",
-    "images/HBhouse1.jpg",
-    "images/hbhouse2.jpg",
-    "images/hbhouse3.jpg",
-    "images/hbhouse5.jpg"
+    /*{name: "images/bbdraw1.jpg", group: 1},
+    {name: "images/bbdraw2.jpg", group: 2},
+    {name: "images/hbdraw1.jpg", group: 2},*/
+    {name: "images/bbhouse1.jpg", group: 3},
+    {name: "images/bbhouse2.jpg", group: 3},
+    {name: "images/HBhouse1.jpg", group: 3},
+    {name: "images/hbhouse2.jpg", group: 3},
+    {name: "images/hbhouse3.jpg", group: 3},
+    {name: "images/hbhouse5.jpg", group: 3}
+/*        {name: "images/Copy\ of\ hbdraw\ 5\ all\ slight\ move.jpg", group: 4},
+    {name: "images/hbdraw\ 5\ slight\ move.jpg", group: 4},
+    {name: "images/hbdraw2.jpg", group: 4},
+    {name: "images/hbdraw3.jpg", group: 4},
+    {name: "images/hbdraw4.jpg", group: 4},
+    {name: "images/hbdraw5.jpg", group: 4},
+
+    {name: "images/IMG_0001.jpg", group: 5},
+    {name: "images/IMG_0002.jpg", group: 5},
+    {name: "images/IMG_0003.jpg", group: 5}*/
 ];
 
 var testimages = [];
@@ -765,6 +1439,8 @@ var testimagesloaded = 0;
 function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
+
+var percentile = 1;
 function keypress(event) {
     if (event.keyCode == 115) {
         // 's'
@@ -776,10 +1452,34 @@ function keypress(event) {
         imageLibrary.add(newImage);
         imageLibrary.draw();
         */
+ /*
+
+ */
         drawable.clear();
 //        imageLibrary.storeIteration();
     } else if (event.keyCode == 99) {
-        
+    } else if (event.keyCode == 32) {
+        imageLibrary.drawForcePercentile_Dist_Weight(percentile, imageHasher.distWeighted.bind(imageHasher),
+            function(scaleIndex) {
+                return (.00010 / (scaleIndex + 1));
+            }
+        );
+        imageLibrary.drawForcePercentile_Dist_Weight(percentile, imageHasher.distWeighted.bind(imageHasher),
+            function(scaleIndex) {
+                return 1;//(.00010 / (scaleIndex + 1));
+            }
+        );
+        imageLibrary.drawForcePercentile_Dist_Weight(percentile, imageHasher.distWeighted.bind(imageHasher),
+            function(scaleIndex) {
+                return (scaleIndex + 1);
+            }
+        );
+        imageLibrary.drawForcePercentile_Dist_Weight(percentile, imageHasher.distWeighted.bind(imageHasher),
+            function(scaleIndex) {
+                return (Math.pow(10,scaleIndex + 1));
+            }
+        );
+        percentile = percentile - .05;
     } else {
         console.log(event.keyCode);
     }
@@ -807,6 +1507,9 @@ function init() {
     tic();
     
 }
+
+
+
 function tic() {
     requestAnimationFrame(tic);
     //
@@ -823,10 +1526,12 @@ function tic() {
         newimage.onload = function(){
             var canvas = document.getElementById("stimuli");
             canvas.getContext("2d").drawImage(this,0,0);
-            imageLibrary.storeIteration();
+            imageLibrary.storeIteration({name: this.name, group: this.group});
             console.log(".");
         };
-        newimage.src = testimages_filenames[testimages.length];
+        newimage.src = testimages_filenames[testimages.length].name;
+        newimage.name = testimages_filenames[testimages.length].name;
+        newimage.group = testimages_filenames[testimages.length].group;
         newimage.className = "hiddenimage";
         document.body.appendChild(newimage);
         console.log("reading " + testimages_filenames[testimages.length] + " cc1cc ");

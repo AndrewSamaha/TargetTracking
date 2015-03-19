@@ -1,3 +1,34 @@
+/* styles for the D3.js force-directed graph */
+
+
+/* Force-directed graphs */
+.link {
+  stroke: #ccc;
+}
+
+.node text {
+  pointer-events: none;
+  font: 10px sans-serif;
+}
+
+/* Histograms */
+.bar rect {
+  fill: steelblue;
+  shape-rendering: crispEdges;
+}
+
+.bar text {
+  fill: #0f0;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+/* other stuff?? */
+
 #trialcontainer
 {
     margin-left: auto;
