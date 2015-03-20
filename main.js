@@ -76,11 +76,16 @@ var ImageLibrary = function(divid) {
     this.storeIteration = function(meta) {
     
         console.log("imageLibrary.storeIteration XX n=" + this.images.length);
-        console.log("\tmeta=" + JSON.stringify(meta));
+        //console.log("\tmeta=" + JSON.stringify(meta));
+
         drawable.context.imageSmoothingEnabled = false;
         drawable.context.webkitImageSmoothingEnabled = false;
         drawable.context.mozImageSmoothingEnabled = false;
-        var hash = imageHasher.getHash(drawable.canvas);
+
+        if (meta && meta.source) {
+            var hash = imageHasher.getHash(meta.source);
+        } else var hash = imageHasher.getHash(drawable.canvas);
+
         this.images.every((function(element, index, array) {
             //console.log("\tindex=" + index);
             console.log("distance between "+hash.id+" and " + element.hash.id + ": " + imageHasher.dist(hash, element.hash));
@@ -91,7 +96,10 @@ var ImageLibrary = function(divid) {
         //console.log("HASH=" + JSON.stringify(hash));
         if (meta && meta.crop) {
             var newImage = new Image();
-            var data = imageHasher.getPreparedImage(drawable.canvas);
+            if (meta && meta.source) {
+                var data = imageHasher.getPreparedImage(meta.source);
+                console.log("ImageLibrary.storeIteration - using meta.source");
+            } else var data = imageHasher.getPreparedImage(drawable.canvas);
             newImage.data = data;
             newImage.hash = hash;
             if (meta) newImage.meta = meta;
@@ -115,7 +123,13 @@ var ImageLibrary = function(divid) {
             this.draw();
         } else {
             var newImage = new Image();
-            newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
+            if (meta && meta.source) {
+                newImage.data = meta.source.getContext("2d").getImageData(0,0,drawable.imageWidth,drawable.imageHeight);//data = imageHasher.getPreparedImage(meta.source);
+                delete meta.source;
+                console.log("ImageLibrary.storeIteration - using meta.source");
+            } else newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
+
+            //newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
             newImage.hash = hash;
             if (meta) newImage.meta = meta;
 /*            imageLibrary.add(newImage);
@@ -709,6 +723,7 @@ var ImageLibrary = function(divid) {
 
     
     this.drawTable = function() {
+        console.log("imageLibrary.drawTable");
         var table = document.createElement('TABLE');
         table.border = '1';
         
@@ -725,8 +740,8 @@ var ImageLibrary = function(divid) {
                 var yimage = null;
                 var ximage = null;
                 
-                if (rowi >= 0) yimage = testimages[rowi];
-                if (coli >= 0) ximage = testimages[coli];
+                if (rowi >= 0) yimage = this.images[rowi]; //testimages[rowi];
+                if (coli >= 0) ximage = this.images[coli]; //testimages[coli];
                 
                 var td = document.createElement('TD');
                 td.width = '75';
@@ -735,8 +750,16 @@ var ImageLibrary = function(divid) {
                 if (yimage == null || ximage == null) {
                     if (yimage || ximage) {
                         cellNode = document.createElement("img");
-                        if (yimage) cellNode.src = yimage.src;
-                        else if (ximage) cellNode.src = ximage.src;
+                        if (yimage) {
+                            if (yimage.meta.dataURL) {
+                                cellNode.src = yimage.meta.dataURL;
+                                //console.log("\tdataURL: " + yimage.meta.dataURL);
+                            } else cellNode.src = yimage.src;
+                        } else if (ximage) {
+                            if (ximage.meta.dataURL) {
+                                cellNode.src = ximage.meta.dataURL;
+                            } else cellNode.src = ximage.src;
+                        }
                         cellNode.className = "tableimg";
                     } else if (!yimage && !ximage) {
                         cellNode = document.createTextNode("$$"); //upper left corner
@@ -745,6 +768,7 @@ var ImageLibrary = function(divid) {
                     }
                 } else {
                     var text = "?";
+                    console.log("\tcomparing " + coli + " to " + rowi);
                     text = Math.floor(imageHasher.dist(this.images[coli].hash, this.images[rowi].hash));
                     cellNode = document.createTextNode(text);
                 }
@@ -866,10 +890,17 @@ var ImageHasher = function() {
                     wx = (tX + 1 - tx); // weight of point within target pixel
                     nwx = (tx + scale - tX - 1); // ... within x+1 target pixel
                 }
+                // OLD, I changed this because my data are actually
+                // in the alpha bits
+                /*
                 sR = sBuffer[sIndex    ];   // retrieving r,g,b for curr src px.
                 sG = sBuffer[sIndex + 1];
                 sB = sBuffer[sIndex + 2];
-
+                */
+                sR = sBuffer[sIndex + 3];   // retrieving r,g,b for curr src px.
+                sG = sBuffer[sIndex + 3];
+                sB = sBuffer[sIndex + 3];
+                
                 /* !! untested : handling alpha !!
                    sA = sBuffer[sIndex + 3];
                    if (!sA) continue;
@@ -967,14 +998,14 @@ var ImageHasher = function() {
         var firstrow = "";
         var secondrow = "";
         var thirdrow = "";
-        
+        var fourthrow = "";
         var min = 255;
         var max = 0;
         var numFilled = 0;
         
         this.canvas.width = this.canvas.width;
         
-        console.log("preparing image:");
+        console.log("getPreparedImage - preparing image:");
         console.log("\tlength=" + data.length);
         console.log("\twidth=" + width);
         console.log("\theight=" + height);
@@ -993,12 +1024,14 @@ var ImageHasher = function() {
                 firstrow += data[i];
                 secondrow += data[i+1];
                 thirdrow += data[i+2];
+                fourthrow += data[i+3];
+            }
                 /*
                 if (data[i+3]) firstrow += "X";
                 else firstrow += "-";*/
-            }
+        
             
-            if (!data[i]) {
+            if (data[i+3]) {
                 if (x >= 1) {
                     //console.log("left (old, new): " + left + "," + x);
                     left = Math.min(left, x);
@@ -1016,9 +1049,11 @@ var ImageHasher = function() {
         if ((bottom - top) > (right - left)) right = left + (bottom - top);
         else bottom = top + (right - left);
         
-        //console.log("firstrow:" + firstrow);
-        //console.log("secondrow:" + secondrow);
-        //console.log("thirdrow:" + thirdrow);
+        /*console.log("firstrow: " + firstrow);
+        console.log("secondrow:" + secondrow);
+        console.log("thirdrow: " + thirdrow);
+        console.log("fourthrow:" + fourthrow);
+        */
         console.log("prepared image:");
         console.log("\tleft-right: " + left + "-" + right);
         console.log("\ttop-bottom: " + top + "-" + bottom);
@@ -1095,7 +1130,7 @@ var ImageHasher = function() {
         
         this.canvas.width = this.canvas.width;
         
-        console.log("preparing image:");
+        console.log("getCroppedImage - preparing image:");
         console.log("\tlength=" + data.length);
         console.log("\twidth=" + width);
         console.log("\theight=" + height);
@@ -1232,6 +1267,7 @@ var ImageHasher = function() {
         var scaledCanvas = this.downScaleCanvas(canvas, newsize);
         var data = scaledCanvas.getContext('2d').getImageData(0,0,newsize,newsize).data;
         var hash = [];
+        var numpixels = 0;
         for (var i = 0; i < data.length; i=i+4) {
             /*if (data[i]==0) hash.push(0);
             else if (data[i]==64) hash.push(1);
@@ -1239,8 +1275,12 @@ var ImageHasher = function() {
             else if (data[i]==191) hash.push(3);
             else if (data[i]==255) hash.push(4);
             else*/
+            
+            
             hash.push(data[i]);
+            if (data[i] == 0) numpixels++;
         }
+        console.log("getHashAtScale(" + newsize + ").numpixels = " + numpixels);
         return hash;
         //console.log("getHashAtScale2(" + newsize + ")= " + hash);
     }
@@ -1276,7 +1316,9 @@ var ImageHasher = function() {
         return diff;
     }
     this.dist = function(hash1, hash2) {
+        console.log("ImageHasher.dist");
         var diff = this.diff(hash1, hash2);
+        console.log("\tdiff=" + JSON.stringify(diff));
         var dimensions = [];
         
         for (var scale_index = 0; scale_index < diff.length; scale_index++) {
@@ -1400,6 +1442,7 @@ var Drawable = function() {
     this.drawingcontainer = null;
     this.summatedcanvas = null;
     this.summatedcontext = null;
+    this.lastStoreTime = 0;
     
     //Options
     this.OPTION_storeAfterMouseUP = true;
@@ -1448,6 +1491,7 @@ var Drawable = function() {
             //this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
             console.log("drawable inited.");
         }
+        this.clear();
     }
     
     this.prepareSummatedCanvas = function() {
@@ -1478,8 +1522,10 @@ var Drawable = function() {
     }
     
     this.drawPoint = function(mousePos) {
+        if (Date.now() - this.lastStoreTime < 100) return;
         if (this.startTime == 0) this.startTimer();
         this.context.fillStyle="black";
+        this.context.fillStyle="rgba(0,0,0,255)";
         this.context.fillRect(mousePos.x*this.scale, mousePos.y*this.scale, this.scale, this.scale);
         /* http://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
         var id = this.context.createImageData(1,1);
@@ -1552,7 +1598,9 @@ var Drawable = function() {
         
         console.log("addCanvasToSummation: newimage.data.length=" + newdata.length + " summateddata.length=" + summateddata.length);
         for (var i = 0; i < newdata.length; i=i+1) {
-            if (i % 177 == 0) console.log("\t" + i + ". " + summateddata[i] + " <> " + newdata[i] + " = " + Math.max(summateddata[i], newdata[i]));
+            /*if (Math.max(summateddata[i], newdata[i]))
+                if (i % 7 == 0) console.log("\t" + i + ". " + summateddata[i] + " <> " + newdata[i] + " = " + Math.max(summateddata[i], newdata[i]));
+                */
             summateddata[i] = Math.max(summateddata[i], newdata[i]);
         }
         console.log("addCanvasToSummation: newimage.data.length=" + newdata.length + " summateddata.length=" + summateddata.length);
@@ -1577,26 +1625,45 @@ var Drawable = function() {
         this.prepareNewCanvas();
     }
     
+    
+    
+    this.reset = function() {
+        var summatedcanvas  = this.summatedcanvas;
+        var summatedcontext = summatedcanvas.getContext("2d");
+        var summatedimage = summatedcontext.getImageData(0,0,this.imageWidth,this.imageHeight);
+        var summateddata = summatedimage.data;
+
+        for (var i = 0; i < summateddata.length; i=i+1) summateddata[i] = 0;
+        summatedcontext.putImageData(summatedimage, 0, 0);
+        
+        for (var i = 0; i < this.finishedCanvases.length; i++) this.finishedCanvases[i].remove();
+        this.finishedCanvases = [];
+        
+        this.clear();
+    }
+    
     this.store = function() {
         this.addCanvasToSummation(this.canvas);     //add the last stroke to our summated image
-        strokeLibrary.storeIteration({crop: true}); //add the stroke to the stroke library
+        strokeLibrary.storeIteration({crop: true, dataURL: this.canvas.toDataURL()}); //add the stroke to the stroke library
         this.createNewCanvas();                     //create a new canvas to draw on
 //        this.clear();
         console.log("saved in strokeLibrary");
+        this.lastStoreTime = Date.now();
     }
     
     this.clear = function() {
         this.context.fillStyle = "white";
+        this.context.fillStyle = "rgba(255,255,255,0)";
         this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
     }
     
     this.timesUp = function() {
-        imageLibrary.storeIteration();
         this.startTime = 0;
         this.setProgress(0);
         this.addCanvasToSummation(this.canvas);
-        imageLibrary.storeIteration();
+        imageLibrary.storeIteration({source: this.summatedcanvas, dataURL: this.summatedcanvas.toDataURL()});
         this.clear();
+        this.reset();
     }
     
     this.draw = function() {
