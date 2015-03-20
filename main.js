@@ -1,4 +1,5 @@
 
+function conditionallog(p) { if (0) console.log(p); }
 //
 //
 //
@@ -17,17 +18,17 @@ var ImageLibrary = function(divid) {
     
     if (divid && document.getElementById(divid)) {
         this.div = document.getElementById(divid);
-        console.log("ImageLibrary is initialized");
+        conditionallog("ImageLibrary is initialized");
     } else {
-        console.log("error initializing ImageLibrary");
+        conditionallog("error initializing ImageLibrary");
     }
     
     this.init = function(divid) {
         if (divid && document.getElementById(divid)) {
             this.div = document.getElementById(divid);
-            console.log("ImageLibrary is initialized for " + divid);
+            conditionallog("ImageLibrary is initialized for " + divid);
         } else {
-            console.log("error initializing ImageLibrary for " + divid);
+            conditionallog("error initializing ImageLibrary for " + divid);
         }
     }
     
@@ -35,14 +36,14 @@ var ImageLibrary = function(divid) {
         this.images.push(newimage);
     }
     this.draw = function() {
-        console.log("imageLibrary.draw");
-        console.log("\tremoving children");
+        conditionallog("imageLibrary.draw");
+        conditionallog("\tremoving children");
         while (this.div.firstChild) {
             this.div.removeChild(this.div.firstChild);
         }
         this.images.every((function(element, index, array) {
             if (!element.data) return;
-            console.log("\tdrawing element " + index);
+            conditionallog("\tdrawing element " + index);
             var canvas = document.createElement("canvas");
             canvas.width =  this.defaultWidth;
             canvas.height = this.defaultHeight;
@@ -66,7 +67,7 @@ var ImageLibrary = function(divid) {
             containerdiv.appendChild(captiondiv);
             
             if (this.div) this.div.appendChild(containerdiv);
-            else console.log("\terror, this.div undefined");
+            else conditionallog("\terror, this.div undefined");
             
             return true;
         }).bind(this));
@@ -75,8 +76,8 @@ var ImageLibrary = function(divid) {
     }
     this.storeIteration = function(meta) {
     
-        console.log("imageLibrary.storeIteration XX n=" + this.images.length);
-        //console.log("\tmeta=" + JSON.stringify(meta));
+        conditionallog("imageLibrary.storeIteration XX n=" + this.images.length);
+        //conditionallog("\tmeta=" + JSON.stringify(meta));
 
         drawable.context.imageSmoothingEnabled = false;
         drawable.context.webkitImageSmoothingEnabled = false;
@@ -87,18 +88,18 @@ var ImageLibrary = function(divid) {
         } else var hash = imageHasher.getHash(drawable.canvas);
 
         this.images.every((function(element, index, array) {
-            //console.log("\tindex=" + index);
-            console.log("distance between "+hash.id+" and " + element.hash.id + ": " + imageHasher.dist(hash, element.hash));
+            //conditionallog("\tindex=" + index);
+            conditionallog("distance between "+hash.id+" and " + element.hash.id + ": " + imageHasher.dist(hash, element.hash));
             return true;
         }).bind(this));
         
-        console.log("hashing image at 3 sizes, 1x1, 2x2, & 10x10:");
-        //console.log("HASH=" + JSON.stringify(hash));
+        conditionallog("hashing image at 3 sizes, 1x1, 2x2, & 10x10:");
+        //conditionallog("HASH=" + JSON.stringify(hash));
         if (meta && meta.crop) {
             var newImage = new Image();
             if (meta && meta.source) {
                 var data = imageHasher.getPreparedImage(meta.source);
-                console.log("ImageLibrary.storeIteration - using meta.source");
+                conditionallog("ImageLibrary.storeIteration - using meta.source");
             } else var data = imageHasher.getPreparedImage(drawable.canvas);
             newImage.data = data;
             newImage.hash = hash;
@@ -126,7 +127,7 @@ var ImageLibrary = function(divid) {
             if (meta && meta.source) {
                 newImage.data = meta.source.getContext("2d").getImageData(0,0,drawable.imageWidth,drawable.imageHeight);//data = imageHasher.getPreparedImage(meta.source);
                 delete meta.source;
-                console.log("ImageLibrary.storeIteration - using meta.source");
+                conditionallog("ImageLibrary.storeIteration - using meta.source");
             } else newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
 
             //newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
@@ -138,11 +139,11 @@ var ImageLibrary = function(divid) {
             this.draw();
         }
         
-        //console.log("imageLibrary.size=" + Math.floor(this.size()/100000)/10 + " mb");
+        //conditionallog("imageLibrary.size=" + Math.floor(this.size()/100000)/10 + " mb");
     }
     this.drawForce = function() {
         //create the data structure
-        console.log("drawForce: creating data structure for nodes and links");
+        conditionallog("drawForce: creating data structure for nodes and links");
         this.nodes = [];
         this.links = [];
         
@@ -236,7 +237,7 @@ var ImageLibrary = function(divid) {
     this.drawForcePercentile = function(p) {
         //create the data structure
 
-        console.log("drawForcePercentile: creating data structure for nodes and links, p = " + p);
+        conditionallog("drawForcePercentile: creating data structure for nodes and links, p = " + p);
         this.nodes = [];
         this.links = [];
         maxLinks = 2;
@@ -286,10 +287,10 @@ var ImageLibrary = function(divid) {
             this.links.sort(linksort);
             var starting_index = Math.max(0,Math.min(1,p));
             starting_index = Math.round(p*this.links.length);
-            console.log("chopping links");
-            console.log("\toriginal  size=" + this.links.length + " p=" + p);
-            console.log("\tstarting index=" + starting_index);
-            console.log("\tnumber of elements to cut=" + (this.links.length-starting_index));
+            conditionallog("chopping links");
+            conditionallog("\toriginal  size=" + this.links.length + " p=" + p);
+            conditionallog("\tstarting index=" + starting_index);
+            conditionallog("\tnumber of elements to cut=" + (this.links.length-starting_index));
 
             this.links.splice(starting_index, this.links.length-starting_index);
         }
@@ -299,7 +300,7 @@ var ImageLibrary = function(divid) {
         var min = "undefined";
         for (var i = 0; i < this.links.length; i++) {
             if (min == "undefined") {
-                console.log("\tmin == undefined, now setting min to something else");
+                conditionallog("\tmin == undefined, now setting min to something else");
                 min = this.links[i].value;
             }
 
@@ -308,7 +309,7 @@ var ImageLibrary = function(divid) {
             
             if (min != "undefined" && this.links[i].value < min) min = this.links[i].value;
         }
-        console.log("rangeX: " + min + " to " + max);
+        conditionallog("rangeX: " + min + " to " + max);
         if (min == "undefined")
             for (var i = 0; i < this.links.length; i++)
                 this.links[i].value = (this.links[i].value) / max;
@@ -380,7 +381,7 @@ var ImageLibrary = function(divid) {
     this.drawForcePercentile_Dist_Weight = function(p,dist_f,weight_f) {
         //create the data structure
 
-        console.log("drawForcePercentile: creating data structure for nodes and links, p = " + p);
+        conditionallog("drawForcePercentile: creating data structure for nodes and links, p = " + p);
         this.nodes = [];
         this.links = [];
         maxLinks = 2;
@@ -420,10 +421,10 @@ var ImageLibrary = function(divid) {
             this.links.sort(linksort);
             var starting_index = Math.max(0,Math.min(1,p));
             starting_index = Math.round(p*this.links.length);
-            console.log("chopping links");
-            console.log("\toriginal  size=" + this.links.length + " p=" + p);
-            console.log("\tstarting index=" + starting_index);
-            console.log("\tnumber of elements to cut=" + (this.links.length-starting_index));
+            conditionallog("chopping links");
+            conditionallog("\toriginal  size=" + this.links.length + " p=" + p);
+            conditionallog("\tstarting index=" + starting_index);
+            conditionallog("\tnumber of elements to cut=" + (this.links.length-starting_index));
 
             this.links.splice(starting_index, this.links.length-starting_index);
         }
@@ -433,7 +434,7 @@ var ImageLibrary = function(divid) {
         var min = "undefined";
         for (var i = 0; i < this.links.length; i++) {
             if (min == "undefined") {
-                console.log("\tmin == undefined, now setting min to something else");
+                conditionallog("\tmin == undefined, now setting min to something else");
                 min = this.links[i].value;
             }
 
@@ -442,7 +443,7 @@ var ImageLibrary = function(divid) {
             
             if (min != "undefined" && this.links[i].value < min) min = this.links[i].value;
         }
-        console.log("rangeX: " + min + " to " + max);
+        conditionallog("rangeX: " + min + " to " + max);
         if (min == "undefined")
             for (var i = 0; i < this.links.length; i++)
                 this.links[i].value = (this.links[i].value) / max;
@@ -574,9 +575,9 @@ var ImageLibrary = function(divid) {
             links = force.links();
             nodes = force.nodes();
             
-            console.log("simulating the deletion of links:");
+            conditionallog("simulating the deletion of links:");
             links.forEach(function(link, index, array) {
-                if (link.target != d && link.source != d) { console.log("delete link " + index); }
+                if (link.target != d && link.source != d) { conditionallog("delete link " + index); }
             });
             
             //delete all links
@@ -607,7 +608,7 @@ var ImageLibrary = function(divid) {
                 var numLinks = 0;
                 links.forEach(function(link, linkindex, linkarray) {
                     if (Math.random() > .8) {
-//                        console.log("comparing nodeindex["+nodeindex+"] to link.source["+link.source+"] and link.target["+link.target+"]");
+//                        conditionallog("comparing nodeindex["+nodeindex+"] to link.source["+link.source+"] and link.target["+link.target+"]");
                     }
                     if (link.source == node || link.target == node) {
                         nodeSum += link.value;
@@ -639,7 +640,7 @@ var ImageLibrary = function(divid) {
             values = values.values;
         }
         
-        console.log("drawHistogram, value=" + values);
+        conditionallog("drawHistogram, value=" + values);
         // A formatter for counts.
         var formatCount = d3.format(",.0f");
         
@@ -656,7 +657,7 @@ var ImageLibrary = function(divid) {
         .bins(x.ticks(20))
         (values);
         
-        console.log(JSON.stringify(data));
+        conditionallog(JSON.stringify(data));
         
         var y = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.y; })])
@@ -690,7 +691,7 @@ var ImageLibrary = function(divid) {
         .attr("text-anchor", "middle")
         .text(function(d) {
             //return formatCount(d.y);
-            console.log("d"+d.x+">"+JSON.stringify(d));
+            conditionallog("d"+d.x+">"+JSON.stringify(d));
             if (extras) return JSON.stringify(extras);
             return (d.x);
         });
@@ -723,7 +724,7 @@ var ImageLibrary = function(divid) {
 
     
     this.drawTable = function() {
-        console.log("imageLibrary.drawTable");
+        conditionallog("imageLibrary.drawTable");
         var table = document.createElement('TABLE');
         table.border = '1';
         
@@ -753,7 +754,7 @@ var ImageLibrary = function(divid) {
                         if (yimage) {
                             if (yimage.meta.dataURL) {
                                 cellNode.src = yimage.meta.dataURL;
-                                //console.log("\tdataURL: " + yimage.meta.dataURL);
+                                //conditionallog("\tdataURL: " + yimage.meta.dataURL);
                             } else cellNode.src = yimage.src;
                         } else if (ximage) {
                             if (ximage.meta.dataURL) {
@@ -768,7 +769,7 @@ var ImageLibrary = function(divid) {
                     }
                 } else {
                     var text = "?";
-                    console.log("\tcomparing " + coli + " to " + rowi);
+                    conditionallog("\tcomparing " + coli + " to " + rowi);
                     text = Math.floor(imageHasher.dist(this.images[coli].hash, this.images[rowi].hash));
                     cellNode = document.createTextNode(text);
                 }
@@ -1005,16 +1006,16 @@ var ImageHasher = function() {
         
         this.canvas.width = this.canvas.width;
         
-        console.log("getPreparedImage - preparing image:");
-        console.log("\tlength=" + data.length);
-        console.log("\twidth=" + width);
-        console.log("\theight=" + height);
+        conditionallog("getPreparedImage - preparing image:");
+        conditionallog("\tlength=" + data.length);
+        conditionallog("\twidth=" + width);
+        conditionallog("\theight=" + height);
         
-        if (context) console.log("\tcontext=defined");
-        else console.log("\tcontext=UNDEFINED!");
+        if (context) conditionallog("\tcontext=defined");
+        else conditionallog("\tcontext=UNDEFINED!");
         
-        if (data) console.log("\tdata=defined");
-        else console.log("\tdata=UNDEFINED!");
+        if (data) conditionallog("\tdata=defined");
+        else conditionallog("\tdata=UNDEFINED!");
         
         for (var i = 0; i <= data.length; i=i+4) {
             
@@ -1033,7 +1034,7 @@ var ImageHasher = function() {
             
             if (data[i+3]) {
                 if (x >= 1) {
-                    //console.log("left (old, new): " + left + "," + x);
+                    //conditionallog("left (old, new): " + left + "," + x);
                     left = Math.min(left, x);
                 }
                 right = Math.max(right, x);
@@ -1049,16 +1050,16 @@ var ImageHasher = function() {
         if ((bottom - top) > (right - left)) right = left + (bottom - top);
         else bottom = top + (right - left);
         
-        /*console.log("firstrow: " + firstrow);
-        console.log("secondrow:" + secondrow);
-        console.log("thirdrow: " + thirdrow);
-        console.log("fourthrow:" + fourthrow);
+        /*conditionallog("firstrow: " + firstrow);
+        conditionallog("secondrow:" + secondrow);
+        conditionallog("thirdrow: " + thirdrow);
+        conditionallog("fourthrow:" + fourthrow);
         */
-        console.log("prepared image:");
-        console.log("\tleft-right: " + left + "-" + right);
-        console.log("\ttop-bottom: " + top + "-" + bottom);
-        console.log("\tmax: " + max);
-        console.log("\tmin: " + min);
+        conditionallog("prepared image:");
+        conditionallog("\tleft-right: " + left + "-" + right);
+        conditionallog("\ttop-bottom: " + top + "-" + bottom);
+        conditionallog("\tmax: " + max);
+        conditionallog("\tmin: " + min);
         
         if (left == width && right == 0 && bottom == 0 && top == height) {
             return image;
@@ -1068,13 +1069,13 @@ var ImageHasher = function() {
             var scaleX = this.maxWidth / scaled_width;
             var scaleY = this.maxHeight / scaled_height;
             
-            console.log("\tleft=" + left);
-            console.log("\ttop=" + top);
-            console.log("\tscaled_width=" + scaled_width);
-            console.log("\tscaled_height=" + scaled_height);
-            console.log("\tthis.maxWidth= [" + this.maxWidth + "]");
-            console.log("\tthis.maxHeight=[" + this.maxHeight + "]");
-            console.log("\tscaleX,y=" + scaleX + "," + scaleY);
+            conditionallog("\tleft=" + left);
+            conditionallog("\ttop=" + top);
+            conditionallog("\tscaled_width=" + scaled_width);
+            conditionallog("\tscaled_height=" + scaled_height);
+            conditionallog("\tthis.maxWidth= [" + this.maxWidth + "]");
+            conditionallog("\tthis.maxHeight=[" + this.maxHeight + "]");
+            conditionallog("\tscaleX,y=" + scaleX + "," + scaleY);
 
             
             //image = context.getImageData(left, top, scaled_width, scaled_height);
@@ -1130,16 +1131,16 @@ var ImageHasher = function() {
         
         this.canvas.width = this.canvas.width;
         
-        console.log("getCroppedImage - preparing image:");
-        console.log("\tlength=" + data.length);
-        console.log("\twidth=" + width);
-        console.log("\theight=" + height);
+        conditionallog("getCroppedImage - preparing image:");
+        conditionallog("\tlength=" + data.length);
+        conditionallog("\twidth=" + width);
+        conditionallog("\theight=" + height);
         
-        if (context) console.log("\tcontext=defined");
-        else console.log("\tcontext=UNDEFINED!");
+        if (context) conditionallog("\tcontext=defined");
+        else conditionallog("\tcontext=UNDEFINED!");
         
-        if (data) console.log("\tdata=defined");
-        else console.log("\tdata=UNDEFINED!");
+        if (data) conditionallog("\tdata=defined");
+        else conditionallog("\tdata=UNDEFINED!");
         
         for (var i = 0; i <= data.length; i=i+4) {
             
@@ -1162,12 +1163,12 @@ var ImageHasher = function() {
             }
         }
         
-        console.log("firstrow:" + firstrow);
-        console.log("prepared image:");
-        console.log("\tleft-right: " + left + "-" + right);
-        console.log("\ttop-bottom: " + top + "-" + bottom);
-        console.log("\tmax: " + max);
-        console.log("\tmin: " + min);
+        conditionallog("firstrow:" + firstrow);
+        conditionallog("prepared image:");
+        conditionallog("\tleft-right: " + left + "-" + right);
+        conditionallog("\ttop-bottom: " + top + "-" + bottom);
+        conditionallog("\tmax: " + max);
+        conditionallog("\tmin: " + min);
         
         if (left == width && right == 0 && bottom == 0 && top == height) {
             return image;
@@ -1177,13 +1178,13 @@ var ImageHasher = function() {
             var scaleX = this.maxWidth / scaled_width;
             var scaleY = this.maxHeight / scaled_height;
             
-            console.log("\tleft=" + left);
-            console.log("\ttop=" + top);
-            console.log("\tscaled_width=" + scaled_width);
-            console.log("\tscaled_height=" + scaled_height);
-            console.log("\tthis.maxWidth= [" + this.maxWidth + "]");
-            console.log("\tthis.maxHeight=[" + this.maxHeight + "]");
-            console.log("\tscaleX,y=" + scaleX + "," + scaleY);
+            conditionallog("\tleft=" + left);
+            conditionallog("\ttop=" + top);
+            conditionallog("\tscaled_width=" + scaled_width);
+            conditionallog("\tscaled_height=" + scaled_height);
+            conditionallog("\tthis.maxWidth= [" + this.maxWidth + "]");
+            conditionallog("\tthis.maxHeight=[" + this.maxHeight + "]");
+            conditionallog("\tscaleX,y=" + scaleX + "," + scaleY);
 
             
             //image = context.getImageData(left, top, scaled_width, scaled_height);
@@ -1261,7 +1262,7 @@ var ImageHasher = function() {
             else if (data[i]==255) hash.push(4);
             else hash.push(data[i]);
         }
-        console.log("getHashAtScale(" + newsize + ")= " + hash);
+        conditionallog("getHashAtScale(" + newsize + ")= " + hash);
     }
     this.getHashAtScale = function(canvas, newsize) {
         var scaledCanvas = this.downScaleCanvas(canvas, newsize);
@@ -1280,9 +1281,9 @@ var ImageHasher = function() {
             hash.push(data[i]);
             if (data[i] == 0) numpixels++;
         }
-        console.log("getHashAtScale(" + newsize + ").numpixels = " + numpixels);
+        conditionallog("getHashAtScale(" + newsize + ").numpixels = " + numpixels);
         return hash;
-        //console.log("getHashAtScale2(" + newsize + ")= " + hash);
+        //conditionallog("getHashAtScale2(" + newsize + ")= " + hash);
     }
     this.getHash = function(canvas) {
         var hash = [];
@@ -1298,7 +1299,7 @@ var ImageHasher = function() {
     }
     this.diff = function(hash1, hash2) {
         if (hash1.length != hash2.length) {
-            console.log("Hasher.diff ERROR, hashes are different lengths!");
+            conditionallog("Hasher.diff ERROR, hashes are different lengths!");
             return;
         }
         var diff = [];
@@ -1316,9 +1317,9 @@ var ImageHasher = function() {
         return diff;
     }
     this.dist = function(hash1, hash2) {
-        console.log("ImageHasher.dist");
+        conditionallog("ImageHasher.dist");
         var diff = this.diff(hash1, hash2);
-        console.log("\tdiff=" + JSON.stringify(diff));
+        conditionallog("\tdiff=" + JSON.stringify(diff));
         var dimensions = [];
         
         for (var scale_index = 0; scale_index < diff.length; scale_index++) {
@@ -1475,7 +1476,7 @@ var Drawable = function() {
         
         this.ready = false;
         if (!this.canvas) {
-            console.log("ImageLibrary error, initialized with null canvas!");
+            conditionallog("ImageLibrary error, initialized with null canvas!");
         }
         if (drawable) {
             this.canvas.addEventListener("click", this.click.bind(this), false);
@@ -1489,7 +1490,7 @@ var Drawable = function() {
             //Trying to make the image transparent
             //this.context.fillStyle = "white";
             //this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
-            console.log("drawable inited.");
+            conditionallog("drawable inited.");
         }
         this.clear();
     }
@@ -1573,11 +1574,11 @@ var Drawable = function() {
         var mousePos = this.getmousepos(event);
         //this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
         this.drawPoint(mousePos);
-        console.log("click - " + this.canvas.offsetLeft);
+        conditionallog("click - " + this.canvas.offsetLeft);
     }
     
     this.dblclick = function(event) {
-        console.log("double click");
+        conditionallog("double click");
         //this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
         this.clear();
         
@@ -1596,14 +1597,14 @@ var Drawable = function() {
         if (newdata.length != summateddata.length)
             throw("addCanvasToSummation: ERROR! newdata.length(" + newdata.length+") != summateddata.length(" + summateddata.length + ")");
         
-        console.log("addCanvasToSummation: newimage.data.length=" + newdata.length + " summateddata.length=" + summateddata.length);
+        conditionallog("addCanvasToSummation: newimage.data.length=" + newdata.length + " summateddata.length=" + summateddata.length);
         for (var i = 0; i < newdata.length; i=i+1) {
             /*if (Math.max(summateddata[i], newdata[i]))
-                if (i % 7 == 0) console.log("\t" + i + ". " + summateddata[i] + " <> " + newdata[i] + " = " + Math.max(summateddata[i], newdata[i]));
+                if (i % 7 == 0) conditionallog("\t" + i + ". " + summateddata[i] + " <> " + newdata[i] + " = " + Math.max(summateddata[i], newdata[i]));
                 */
             summateddata[i] = Math.max(summateddata[i], newdata[i]);
         }
-        console.log("addCanvasToSummation: newimage.data.length=" + newdata.length + " summateddata.length=" + summateddata.length);
+        conditionallog("addCanvasToSummation: newimage.data.length=" + newdata.length + " summateddata.length=" + summateddata.length);
         summatedcontext.putImageData(summatedimage, 0, 0);
     }
     
@@ -1647,7 +1648,7 @@ var Drawable = function() {
         strokeLibrary.storeIteration({crop: true, dataURL: this.canvas.toDataURL()}); //add the stroke to the stroke library
         this.createNewCanvas();                     //create a new canvas to draw on
 //        this.clear();
-        console.log("saved in strokeLibrary");
+        conditionallog("saved in strokeLibrary");
         this.lastStoreTime = Date.now();
     }
     
@@ -1763,7 +1764,7 @@ function keypress(event) {
         );
         percentile = percentile - .05;
     } else {
-        console.log(event.keyCode);
+        conditionallog(event.keyCode);
     }
 }
 
@@ -1814,15 +1815,15 @@ function tic() {
             var canvas = document.getElementById("stimuli");
             canvas.getContext("2d").drawImage(this,0,0);
             imageLibrary.storeIteration({name: this.name, group: this.group});
-            console.log(".");
+            conditionallog(".");
         };
         newimage.src = testimages_filenames[testimages.length].name;
         newimage.name = testimages_filenames[testimages.length].name;
         newimage.group = testimages_filenames[testimages.length].group;
         newimage.className = "hiddenimage";
         document.body.appendChild(newimage);
-        console.log("reading " + testimages_filenames[testimages.length] + " cc1cc ");
-        //console.log(newimage);
+        conditionallog("reading " + testimages_filenames[testimages.length] + " cc1cc ");
+        //conditionallog(newimage);
         
         
         testimages.push(newimage);
