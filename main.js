@@ -1,5 +1,5 @@
 
-function conditionallog(p) { if (0) console.log(p); }
+function conditionallog(p) { if (1) console.log(p); }
 //
 //
 //
@@ -83,62 +83,64 @@ var ImageLibrary = function(divid) {
         drawable.context.webkitImageSmoothingEnabled = false;
         drawable.context.mozImageSmoothingEnabled = false;
 
-        if (meta && meta.source) {
-            var hash = imageHasher.getHash(meta.source);
-        } else var hash = imageHasher.getHash(drawable.canvas);
+        var sourcecanvas = drawable.canvas;
+        
+        if (meta && meta.sourcecanvas) {
+            sourcecanvas = meta.sourcecanvas;
+            delete meta.sourcecanvas;
+        }
+        
+        conditionallog("hashing image at 3 sizes, 1x1, 2x2, & 10x10:");
+        //conditionallog("HASH=" + JSON.stringify(hash));
+        var newImage = new Image();
+        //var data;
+        
+        if (meta && meta.crop) {
+            /*
+            if (meta && meta.source) {
+                newImage.data = imageHasher.getPreparedImage(meta.source);
+                conditionallog("ImageLibrary.storeIteration - using meta.source 1");
+            } else newImage.data = imageHasher.getPreparedImage(drawable.canvas);;
+            */
+            
+            newImage.data = imageHasher.getPreparedImage(sourcecanvas);
+           
 
+        } else if (this.OPTION_compareZoomedImages) {
+            newImage.data = imageHasher.getPreparedImage(sourcecanvas);
+            
+
+        } else {
+            /*if (meta && meta.source) {
+                newImage.data = meta.source.getContext("2d").getImageData(0,0,drawable.imageWidth,drawable.imageHeight);//data = imageHasher.getPreparedImage(meta.source);
+                delete meta.source;
+                conditionallog("ImageLibrary.storeIteration - using meta.source 2");
+            } else newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
+            */
+            newImage.data = sourcecanvas.getContext("2d").getImageData(0,0,sourcecanvas.width,sourcecanvas.height);
+        
+        }
+        
+        if (meta) newImage.meta = meta;
+        
+        var hash = null;
+        
+        /*
+        if (meta && meta.source) hash = imageHasher.getHash(meta.source);
+        else hash = imageHasher.getHash(drawable.canvas);
+        */
+        
+        hash = imageHasher.getHash(sourcecanvas);
+        newImage.hash = hash;
+        
         this.images.every((function(element, index, array) {
             //conditionallog("\tindex=" + index);
             conditionallog("distance between "+hash.id+" and " + element.hash.id + ": " + imageHasher.dist(hash, element.hash));
             return true;
         }).bind(this));
         
-        conditionallog("hashing image at 3 sizes, 1x1, 2x2, & 10x10:");
-        //conditionallog("HASH=" + JSON.stringify(hash));
-        if (meta && meta.crop) {
-            var newImage = new Image();
-            if (meta && meta.source) {
-                var data = imageHasher.getPreparedImage(meta.source);
-                conditionallog("ImageLibrary.storeIteration - using meta.source");
-            } else var data = imageHasher.getPreparedImage(drawable.canvas);
-            newImage.data = data;
-            newImage.hash = hash;
-            if (meta) newImage.meta = meta;
-            /*
-            imageLibrary.add(newImage);
-            imageLibrary.draw();
-            */
-            this.add(newImage);
-            this.draw();
-        } else if (this.OPTION_compareZoomedImages) {
-            var newImage = new Image();
-            var data = imageHasher.getPreparedImage(drawable.canvas);
-            newImage.data = data;
-            newImage.hash = hash;
-            if (meta) newImage.meta = meta;
-            /*
-            imageLibrary.add(newImage);
-            imageLibrary.draw();
-            */
-            this.add(newImage);
-            this.draw();
-        } else {
-            var newImage = new Image();
-            if (meta && meta.source) {
-                newImage.data = meta.source.getContext("2d").getImageData(0,0,drawable.imageWidth,drawable.imageHeight);//data = imageHasher.getPreparedImage(meta.source);
-                delete meta.source;
-                conditionallog("ImageLibrary.storeIteration - using meta.source");
-            } else newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
-
-            //newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
-            newImage.hash = hash;
-            if (meta) newImage.meta = meta;
-/*            imageLibrary.add(newImage);
-            imageLibrary.draw();*/
-            this.add(newImage);
-            this.draw();
-        }
-        
+        this.add(newImage);
+        this.draw();
         //conditionallog("imageLibrary.size=" + Math.floor(this.size()/100000)/10 + " mb");
     }
     this.drawForce = function() {
@@ -1645,7 +1647,7 @@ var Drawable = function() {
     
     this.store = function() {
         this.addCanvasToSummation(this.canvas);     //add the last stroke to our summated image
-        strokeLibrary.storeIteration({crop: true, dataURL: this.canvas.toDataURL()}); //add the stroke to the stroke library
+        strokeLibrary.storeIteration({crop: true, dataURL: this.canvas.toDataURL(), sourcecanvas: this.canvas}); //add the stroke to the stroke library
         this.createNewCanvas();                     //create a new canvas to draw on
 //        this.clear();
         conditionallog("saved in strokeLibrary");
@@ -1662,7 +1664,7 @@ var Drawable = function() {
         this.startTime = 0;
         this.setProgress(0);
         this.addCanvasToSummation(this.canvas);
-        imageLibrary.storeIteration({source: this.summatedcanvas, dataURL: this.summatedcanvas.toDataURL()});
+        imageLibrary.storeIteration({source: this.summatedcanvas, dataURL: this.summatedcanvas.toDataURL(), sourcecanvas: this.summatedcanvas});
         this.clear();
         this.reset();
     }
