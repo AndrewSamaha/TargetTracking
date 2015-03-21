@@ -92,45 +92,58 @@ var ImageLibrary = function(divid) {
         
         conditionallog("hashing image at 3 sizes, 1x1, 2x2, & 10x10:");
         //conditionallog("HASH=" + JSON.stringify(hash));
+        
         var newImage = new Image();
-        //var data;
-        
-        if (meta && meta.crop) {
-            /*
-            if (meta && meta.source) {
-                newImage.data = imageHasher.getPreparedImage(meta.source);
-                conditionallog("ImageLibrary.storeIteration - using meta.source 1");
-            } else newImage.data = imageHasher.getPreparedImage(drawable.canvas);;
-            */
-            
-            newImage.data = imageHasher.getPreparedImage(sourcecanvas);
-           
-
-        } else if (this.OPTION_compareZoomedImages) {
-            newImage.data = imageHasher.getPreparedImage(sourcecanvas);
-            
-
-        } else {
-            /*if (meta && meta.source) {
-                newImage.data = meta.source.getContext("2d").getImageData(0,0,drawable.imageWidth,drawable.imageHeight);//data = imageHasher.getPreparedImage(meta.source);
-                delete meta.source;
-                conditionallog("ImageLibrary.storeIteration - using meta.source 2");
-            } else newImage.data = drawable.context.getImageData(0,0,drawable.imageWidth,drawable.imageHeight);
-            */
-            newImage.data = sourcecanvas.getContext("2d").getImageData(0,0,sourcecanvas.width,sourcecanvas.height);
-        
-        }
-        
         if (meta) newImage.meta = meta;
         
+        //var data;
+        var preparedimage = null;
+        if ((meta && meta.crop) || (this.OPTION_compareZoomedImages))
+            var preparedimage = imageHasher.getPreparedImage(sourcecanvas);
+        /*
+        if (meta && meta.crop) {
+        
+            var preparedimage = imageHasher.getPreparedImage(sourcecanvas);
+            newImage.data = preparedimage.imagedata;
+            if (!newImage.meta) newImage.meta = {dataURL: preparedimage.canvas.toDataURL()};
+            else newImage.meta.dataURL = preparedimage.canvas.toDataURL();
+
+        } else if (this.OPTION_compareZoomedImages) {
+            var preparedimage = imageHasher.getPreparedImage(sourcecanvas);
+            newImage.data = preparedimage.imagedata;
+            if (!newImage.meta) newImage.meta = {dataURL: preparedimage.canvas.toDataURL()};
+            else newImage.meta.dataURL = preparedimage.canvas.toDataURL();
+
+        } else {
+
+            newImage.data = sourcecanvas.getContext("2d").getImageData(0,0,sourcecanvas.width,sourcecanvas.height);
+            if (!newImage.meta) newImage.meta = {dataURL: sourcecanvas.toDataURL()};
+            else newImage.meta.dataURL = sourcecanvas.toDataURL();
+        }
+        */
         var hash = null;
+        
+        if (preparedimage) {
+            var preparedimage = imageHasher.getPreparedImage(sourcecanvas);
+            newImage.data = preparedimage.imagedata;
+            if (!newImage.meta) newImage.meta = {dataURL: preparedimage.canvas.toDataURL()};
+            else newImage.meta.dataURL = preparedimage.canvas.toDataURL();
+            hash = imageHasher.getHash(preparedimage.canvas);
+        } else {
+            newImage.data = sourcecanvas.getContext("2d").getImageData(0,0,sourcecanvas.width,sourcecanvas.height);
+            if (!newImage.meta) newImage.meta = {dataURL: sourcecanvas.toDataURL()};
+            else newImage.meta.dataURL = sourcecanvas.toDataURL();
+            hash = imageHasher.getHash(sourcecanvas);
+        }
+        
+        
         
         /*
         if (meta && meta.source) hash = imageHasher.getHash(meta.source);
         else hash = imageHasher.getHash(drawable.canvas);
         */
         
-        hash = imageHasher.getHash(sourcecanvas);
+        //hash = imageHasher.getHash(sourcecanvas);
         newImage.hash = hash;
         
         this.images.every((function(element, index, array) {
@@ -1107,7 +1120,7 @@ var ImageHasher = function() {
                 left, top, scaled_width, scaled_height,
                 0, 0, this.maxWidth, this.maxHeight
             );
-            return newcanvas.getContext('2d').getImageData(0, 0, this.maxWidth, this.maxHeight);
+            return {imagedata: newcanvas.getContext('2d').getImageData(0, 0, this.maxWidth, this.maxHeight), canvas: newcanvas};
 
         }
     }
