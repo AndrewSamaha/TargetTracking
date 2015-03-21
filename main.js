@@ -408,7 +408,7 @@ var ImageLibrary = function(divid) {
         }
         
         for (var rowi = 0; rowi < this.images.length; rowi++) {
-            this.nodes.push({name: this.images[rowi].meta.name, group: this.images[rowi].meta.group, image: this.images[rowi]});
+            this.nodes.push({name: this.images[rowi].meta.name, group: this.images[rowi].meta.group, image: this.images[rowi], dataURL: this.images[rowi].meta.dataURL});
         }
         
         for (var rowi = 0; rowi < this.nodes.length; rowi++) {
@@ -544,7 +544,8 @@ var ImageLibrary = function(divid) {
             .call(force.drag);
 
         node.append("image")
-            .attr("xlink:href", function(d) {return d.name;}) //"https://github.com/favicon.ico")
+            .attr("xlink:href", function(d) {return d.dataURL;})
+            //.attr("xlink:href", function(d) {return d.name;}) //"https://github.com/favicon.ico")
             .attr("x", -25)
             .attr("y", -25)
             .attr("width", 50)
