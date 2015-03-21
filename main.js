@@ -8,6 +8,9 @@ function conditionallog(p) { if (1) console.log(p); }
 //
 //
 var ImageLibrary = function(divid) {
+    this.historic_images = [];
+    this.lag = 20;
+    this.minimumPercentile = .8;
     this.images = [];
     this.div = null;
     this.defaultWidth = 256;
@@ -34,6 +37,7 @@ var ImageLibrary = function(divid) {
     
     this.add = function(newimage) {
         this.images.push(newimage);
+        if (this.images.length > this.lag) this.historic_images.push(this.images.shift());
     }
     this.draw = function() {
         conditionallog("imageLibrary.draw");
@@ -43,7 +47,7 @@ var ImageLibrary = function(divid) {
         }
         this.images.every((function(element, index, array) {
             if (!element.data) return;
-            conditionallog("\tdrawing element " + index);
+            //conditionallog("\tdrawing element " + index);
             var canvas = document.createElement("canvas");
             canvas.width =  this.defaultWidth;
             canvas.height = this.defaultHeight;
@@ -136,6 +140,8 @@ var ImageLibrary = function(divid) {
             hash = imageHasher.getHash(sourcecanvas);
         }
         
+        newImage.hash = hash;
+        this.add(newImage);
         
         
         /*
@@ -144,16 +150,69 @@ var ImageLibrary = function(divid) {
         */
         
         //hash = imageHasher.getHash(sourcecanvas);
-        newImage.hash = hash;
         
-        this.images.every((function(element, index, array) {
-            //conditionallog("\tindex=" + index);
-            conditionallog("distance between "+hash.id+" and " + element.hash.id + ": " + imageHasher.dist(hash, element.hash));
-            return true;
-        }).bind(this));
+        var meetsCriterion = false;
         
-        this.add(newImage);
+        // Determine if the last response meets criterion for reinforcement
+        
+        if (this.images.length < this.lag) {
+            // if we have fewer responses than our lag value, then use a RR schedule = minimumPercentile
+            if (Math.random() >= this.minimumPercentile) meetsCriterion = true;
+        } else {
+            var sumOfSums = 0;
+            var numSums = 0;
+            var startTime = Date.now();
+            this.images.every((function(elementA, indexA, arrayA) {
+                elementA.distanceSum = 0;
+                this.images.every((function(elementB, indexB, arrayB) {
+                    elementA.distanceSum += imageHasher.dist(elementA.hash, elementB.hash);
+                    return true;
+                }).bind(this));
+                numSums++;                          //don't need
+                sumOfSums += elementA.distanceSum;  //don't need
+                //conditionallog("\tindex=" + index);
+                //conditionallog("distance between "+hash.id+" and " + element.hash.id + ": " + imageHasher.dist(hash, element.hash));
+                return true;
+            }).bind(this));
+            
+            var targetNumLowerThan = this.minimumPercentile * this.images.length;
+            var numLowerThan = 0;
+            var numTested = 0;
+            var reason = "";
+            var largerThans = [];
+            this.images.every((function(elementA, indexA, arrayA) {
+                if (elementA.distanceSum <= newImage.distanceSum) {
+                    numLowerThan++;
+                    if (numLowerThan >= targetNumLowerThan) {
+                        meetsCriterion = true;
+                        return false;
+                    }
+                } else {
+                    largerThans.push(elementA.distanceSum);
+                    numTested++;
+                }
+                
+                if (numTested > (this.images.length - targetNumLowerThan)) {
+                    reason = "found " + numTested + ","+largerThans.length+" items larger than the target ("+newImage.distanceSum+") [n="+(this.images.length)+" targetNumLowerThan="+targetNumLowerThan+"]: ";
+                    for (var i = 0; i < largerThans.length; i++) reason += largerThans + ",";
+                    return false;
+                }
+                return true;
+            }).bind(this));
+            
+            var duration = Date.now() - startTime;
+            
+            console.log("imageLibrary.storeIteration - time to calculate sr: " + duration + " ms");
+            if (meetsCriterion) console.log("\tSr+");
+            else console.log("\text - " + reason);
+        
+        
+        }
+        
         this.draw();
+        
+        
+        return meetsCriterion;
         //conditionallog("imageLibrary.size=" + Math.floor(this.size()/100000)/10 + " mb");
     }
     this.drawForce = function() {
@@ -785,7 +844,7 @@ var ImageLibrary = function(divid) {
                     }
                 } else {
                     var text = "?";
-                    conditionallog("\tcomparing " + coli + " to " + rowi);
+                    //conditionallog("\tcomparing " + coli + " to " + rowi);
                     text = Math.floor(imageHasher.dist(this.images[coli].hash, this.images[rowi].hash));
                     cellNode = document.createTextNode(text);
                 }
@@ -1278,7 +1337,7 @@ var ImageHasher = function() {
             else if (data[i]==255) hash.push(4);
             else hash.push(data[i]);
         }
-        conditionallog("getHashAtScale(" + newsize + ")= " + hash);
+        //conditionallog("getHashAtScale(" + newsize + ")= " + hash);
     }
     this.getHashAtScale = function(canvas, newsize) {
         var scaledCanvas = this.downScaleCanvas(canvas, newsize);
@@ -1297,7 +1356,7 @@ var ImageHasher = function() {
             hash.push(data[i]);
             if (data[i] == 0) numpixels++;
         }
-        conditionallog("getHashAtScale(" + newsize + ").numpixels = " + numpixels);
+        //conditionallog("getHashAtScale(" + newsize + ").numpixels = " + numpixels);
         return hash;
         //conditionallog("getHashAtScale2(" + newsize + ")= " + hash);
     }
@@ -1333,9 +1392,9 @@ var ImageHasher = function() {
         return diff;
     }
     this.dist = function(hash1, hash2) {
-        conditionallog("ImageHasher.dist");
+        //conditionallog("ImageHasher.dist");
         var diff = this.diff(hash1, hash2);
-        conditionallog("\tdiff=" + JSON.stringify(diff));
+        //conditionallog("\tdiff=" + JSON.stringify(diff));
         var dimensions = [];
         
         for (var scale_index = 0; scale_index < diff.length; scale_index++) {
