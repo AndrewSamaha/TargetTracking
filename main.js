@@ -104,27 +104,7 @@ var ImageLibrary = function(divid) {
         var preparedimage = null;
         if ((meta && meta.crop) || (this.OPTION_compareZoomedImages))
             var preparedimage = imageHasher.getPreparedImage(sourcecanvas);
-        /*
-        if (meta && meta.crop) {
-        
-            var preparedimage = imageHasher.getPreparedImage(sourcecanvas);
-            newImage.data = preparedimage.imagedata;
-            if (!newImage.meta) newImage.meta = {dataURL: preparedimage.canvas.toDataURL()};
-            else newImage.meta.dataURL = preparedimage.canvas.toDataURL();
 
-        } else if (this.OPTION_compareZoomedImages) {
-            var preparedimage = imageHasher.getPreparedImage(sourcecanvas);
-            newImage.data = preparedimage.imagedata;
-            if (!newImage.meta) newImage.meta = {dataURL: preparedimage.canvas.toDataURL()};
-            else newImage.meta.dataURL = preparedimage.canvas.toDataURL();
-
-        } else {
-
-            newImage.data = sourcecanvas.getContext("2d").getImageData(0,0,sourcecanvas.width,sourcecanvas.height);
-            if (!newImage.meta) newImage.meta = {dataURL: sourcecanvas.toDataURL()};
-            else newImage.meta.dataURL = sourcecanvas.toDataURL();
-        }
-        */
         var hash = null;
         
         if (preparedimage) {
@@ -154,60 +134,60 @@ var ImageLibrary = function(divid) {
         var meetsCriterion = false;
         
         // Determine if the last response meets criterion for reinforcement
-        
-        if (this.images.length < this.lag) {
-            // if we have fewer responses than our lag value, then use a RR schedule = minimumPercentile
-            if (Math.random() >= this.minimumPercentile) meetsCriterion = true;
-        } else {
-            var sumOfSums = 0;
-            var numSums = 0;
-            var startTime = Date.now();
-            this.images.every((function(elementA, indexA, arrayA) {
-                elementA.distanceSum = 0;
-                this.images.every((function(elementB, indexB, arrayB) {
-                    elementA.distanceSum += imageHasher.dist(elementA.hash, elementB.hash);
+        if (meta && meta.testForSr)
+            if (this.images.length < this.lag) {
+                // if we have fewer responses than our lag value, then use a RR schedule = minimumPercentile
+                if (Math.random() >= this.minimumPercentile) meetsCriterion = true;
+            } else {
+                var sumOfSums = 0;
+                var numSums = 0;
+                var startTime = Date.now();
+                this.images.every((function(elementA, indexA, arrayA) {
+                    elementA.distanceSum = 0;
+                    this.images.every((function(elementB, indexB, arrayB) {
+                        elementA.distanceSum += imageHasher.dist(elementA.hash, elementB.hash);
+                        return true;
+                    }).bind(this));
+                    numSums++;                          //don't need
+                    sumOfSums += elementA.distanceSum;  //don't need
+                    //conditionallog("\tindex=" + index);
+                    //conditionallog("distance between "+hash.id+" and " + element.hash.id + ": " + imageHasher.dist(hash, element.hash));
                     return true;
                 }).bind(this));
-                numSums++;                          //don't need
-                sumOfSums += elementA.distanceSum;  //don't need
-                //conditionallog("\tindex=" + index);
-                //conditionallog("distance between "+hash.id+" and " + element.hash.id + ": " + imageHasher.dist(hash, element.hash));
-                return true;
-            }).bind(this));
-            
-            var targetNumLowerThan = this.minimumPercentile * this.images.length;
-            var numLowerThan = 0;
-            var numTested = 0;
-            var reason = "";
-            var largerThans = [];
-            this.images.every((function(elementA, indexA, arrayA) {
-                if (elementA.distanceSum <= newImage.distanceSum) {
-                    numLowerThan++;
-                    if (numLowerThan >= targetNumLowerThan) {
-                        meetsCriterion = true;
+                
+                var targetNumLowerThan = this.minimumPercentile * this.images.length;
+                var numLowerThan = 0;
+                var numTested = 0;
+                var reason = "";
+                var largerThans = [];
+                this.images.every((function(elementA, indexA, arrayA) {
+                    if (elementA.distanceSum <= newImage.distanceSum) {
+                        numLowerThan++;
+                        if (numLowerThan >= targetNumLowerThan) {
+                            meetsCriterion = true;
+                            return false;
+                        }
+                    } else {
+                        largerThans.push(elementA.distanceSum);
+                        numTested++;
+                    }
+                    
+                    if (numTested > (this.images.length - targetNumLowerThan)) {
+                        //reason = "found " + numTested + ","+largerThans.length+" items larger than the target ("+newImage.distanceSum+") [n="+(this.images.length)+" targetNumLowerThan="+targetNumLowerThan+"]: ";
+                        for (var i = 0; i < largerThans.length; i++) reason += largerThans + ",";
                         return false;
                     }
-                } else {
-                    largerThans.push(elementA.distanceSum);
-                    numTested++;
-                }
+                    return true;
+                }).bind(this));
                 
-                if (numTested > (this.images.length - targetNumLowerThan)) {
-                    reason = "found " + numTested + ","+largerThans.length+" items larger than the target ("+newImage.distanceSum+") [n="+(this.images.length)+" targetNumLowerThan="+targetNumLowerThan+"]: ";
-                    for (var i = 0; i < largerThans.length; i++) reason += largerThans + ",";
-                    return false;
-                }
-                return true;
-            }).bind(this));
+                var duration = Date.now() - startTime;
+                
+                console.log("imageLibrary.storeIteration - time to calculate sr: " + duration + " ms");
+                if (meetsCriterion) console.log("\tSr+");
+                else console.log("\text - " + reason);
             
-            var duration = Date.now() - startTime;
             
-            console.log("imageLibrary.storeIteration - time to calculate sr: " + duration + " ms");
-            if (meetsCriterion) console.log("\tSr+");
-            else console.log("\text - " + reason);
-        
-        
-        }
+            }
         
         this.draw();
         
@@ -1519,7 +1499,9 @@ var Drawable = function() {
     this.summatedcanvas = null;
     this.summatedcontext = null;
     this.lastStoreTime = 0;
-    
+    this.feedbackdiv = null;
+    this.lastFeedbackStart = 0;
+    this.feedbackDuration = 800;
     //Options
     this.OPTION_storeAfterMouseUP = true;
     
@@ -1528,6 +1510,7 @@ var Drawable = function() {
         if (document.getElementById("progressbar_outside")) this.progressbar_outside = document.getElementById("progressbar_outside");
         if (document.getElementById("progressbar_inside")) this.progressbar_inside = document.getElementById("progressbar_inside");
         if (document.getElementById("summatedcanvas")) this.summatedcanvas = document.getElementById("summatedcanvas");
+        if (document.getElementById("feedback")) this.feedbackdiv = document.getElementById("feedback");
         
         //Set progressbar size
         if (this.progressbar_outside && this.progressbar_inside) {
@@ -1720,7 +1703,11 @@ var Drawable = function() {
     
     this.store = function() {
         this.addCanvasToSummation(this.canvas);     //add the last stroke to our summated image
-        strokeLibrary.storeIteration({crop: true, dataURL: this.canvas.toDataURL(), sourcecanvas: this.canvas}); //add the stroke to the stroke library
+        var getsReinforced = strokeLibrary.storeIteration({crop: true, dataURL: this.canvas.toDataURL(), sourcecanvas: this.canvas, testForSr: true}); //add the stroke to the stroke library
+        if (getsReinforced) {
+            this.feedbackdiv.className = "srplusfeedback";
+            this.lastFeedbackStart = Date.now();
+        }
         this.createNewCanvas();                     //create a new canvas to draw on
 //        this.clear();
         conditionallog("saved in strokeLibrary");
@@ -1746,9 +1733,14 @@ var Drawable = function() {
         if (this.startTime != 0) {
             if (Date.now() - this.startTime >= this.maxTime) {
                 this.timesUp();
-                return;
             } else {
                 this.setProgress((Date.now() - this.startTime) / this.maxTime);
+            }
+        }
+        if (this.lastFeedbackStart != 0) {
+            if (Date.now() - this.lastFeedbackStart >= this.feedbackDuration) {
+                this.feedbackdiv.className = "nofeedback";
+                this.lastFeedbackStart = 0;
             }
         }
     }
