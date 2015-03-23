@@ -35,6 +35,24 @@
     position: relative;
     display: inline;
 }
+
+#feedback
+{
+    position:fixed;
+    top: 300px;
+    width: 250px;
+    height: 30px;
+}
+.nofeedback
+{
+    visibility: hidden;
+}
+.srplusfeedback
+{
+    visibility: visible;
+    background-color: #00FF00;
+}
+
 #librarycontainer
 {
     border: solid 2px;

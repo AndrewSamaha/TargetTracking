@@ -1,5 +1,5 @@
 
-function conditionallog(p) { if (1) console.log(p); }
+function conditionallog(p) { if (0) console.log(p); }
 //
 //
 //
@@ -1158,7 +1158,9 @@ var ImageHasher = function() {
             newcanvas.getContext('2d').drawImage(
                 canvas,
                 left, top, scaled_width, scaled_height,
-                0, 0, this.maxWidth, this.maxHeight
+                0, 0,
+                scaled_width, scaled_height
+                //this.maxWidth, this.maxHeight
             );
             return {imagedata: newcanvas.getContext('2d').getImageData(0, 0, this.maxWidth, this.maxHeight), canvas: newcanvas};
 
@@ -1493,7 +1495,7 @@ var Drawable = function() {
     this.progressbar_outside = null;
     this.progressbar_inside = null;
     this.startTime = 0;
-    this.maxTime = 10000;
+    this.maxTime = 20000;
     this.finishedCanvases = [];
     this.drawingcontainer = null;
     this.summatedcanvas = null;
