@@ -68,6 +68,7 @@ function toggleFullScreen() {
 }
 
 function startgame() {
+    window.scrollTo(0,1);
     document.getElementById("startbutton").style.visibility = "hidden";
     document.body.requestFullscreen();
     toggleFullScreen();
