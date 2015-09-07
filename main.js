@@ -34,10 +34,14 @@ function init() {
     }
     starttime = Date.now();
     
-    if (window.screen.lockOrientation("landscape")) {
-        orientationmsg = "landscape locked";
-    } else {
-        orientationmsg = "langscape NOT locked";
+    try {
+        if (window.screen.lockOrientation("landscape")) {
+            orientationmsg = "landscape locked";
+        } else {
+            orientationmsg = "langscape NOT locked";
+        }
+    } catch (e) {
+        orientationmsg = e;
     }
     
     tic();
