@@ -2,6 +2,7 @@ var outputdiv = null;
 var shown = false;
 var lastmessage = "notdefined";
 var starttime = 0;
+var orientationmsg = "notdefined";
 
 function accelerometerUpdate(e) {
    var aX = event.accelerationIncludingGravity.x*1;
@@ -12,7 +13,7 @@ function accelerometerUpdate(e) {
    xPosition = Math.atan2(aY, aZ);
    yPosition = Math.atan2(aX, aZ);
    if (outputdiv) {
-        outputdiv.innerHTML = lastmessage = xPosition + "<br>" + yPosition;
+        outputdiv.innerHTML = lastmessage = xPosition + "<br>" + yPosition + "<br>" + orientationmsg;
        
    }
 }
@@ -34,6 +35,9 @@ function init() {
     starttime = Date.now();
     
     if (window.screen.lockOrientation("landscape")) {
+        orientationmsg = "landscape locked";
+    } else {
+        orientationmsg = "langscape NOT locked";
     }
     
     tic();
