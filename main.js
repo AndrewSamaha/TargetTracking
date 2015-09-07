@@ -43,6 +43,11 @@ function init() {
     } catch (e) {
         orientationmsg = e;
     }
+    var goFS = document.getElementById("startbutton");
+    goFS.addEventListener("click", function() {
+        document.getElementById("startbutton").style.visibility = "hidden";
+        document.body.requestFullscreen();
+    }, false);
     
     tic();
     
