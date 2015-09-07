@@ -44,13 +44,15 @@ function init() {
         orientationmsg = e;
     }
     var goFS = document.getElementById("startbutton");
-    goFS.addEventListener("click", function() {
-        document.getElementById("startbutton").style.visibility = "hidden";
-        document.body.requestFullscreen();
-    }, false);
-    
+    goFS.addEventListener("click", startgame, false);
+    goFS.addEventListener("touchend", startgame, false);
     tic();
     
+}
+
+function startgame() {
+    document.getElementById("startbutton").style.visibility = "hidden";
+    document.body.requestFullscreen();
 }
 
 function currenttime() {
