@@ -17,6 +17,10 @@ function accelerometerUpdate(e) {
 }
 
 function init() {
+    if (document.getElementById("xtrialcontainer")) {
+        outputdiv = document.getElementById("xtrialcontainer");
+    }
+    
     if (window.DeviceMotionEvent == undefined) {
         //No accelerometer is present. Use buttons. 
         alert("no accelerometer");
@@ -24,9 +28,7 @@ function init() {
     else {
         alert("accelerometer found");
         window.addEventListener("devicemotion", accelerometerUpdate, true);
-        if (document.getElementById("xtrialcontainer")) {
-            outputdiv = document.getElementById("xtrialcontainer");
-        }
+        
     }
     
     tic();
