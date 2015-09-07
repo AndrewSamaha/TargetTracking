@@ -1,6 +1,18 @@
 /* styles for the D3.js force-directed graph */
 
-
+#startbutton
+{
+    border: solid 2px;
+    width: 40%;
+    height: 30%;
+/*    overflow: auto;*/
+    overflow-y:scroll;
+    position: fixed;
+    right: 30%;
+    text-align: center;
+    /*display: inline;*/
+/*    display: inline-block;*/
+}
 /* Force-directed graphs */
 .link {
   stroke: #ccc;
