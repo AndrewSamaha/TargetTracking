@@ -41,12 +41,13 @@ function init() {
             orientationmsg = "langscape NOT locked";
         }
     } catch (e) {
-        orientationmsg = e;
+        orientationmsg = "";
     }
+    
     var goFS = document.getElementById("startbutton");
     goFS.addEventListener("click", startgame, false);
     goFS.addEventListener("touchend", startgame, false);
-    goFS.addEventListener("touchstart", startgame, false);
+    //goFS.addEventListener("touchstart", startgame, false);
     tic();
     
 }
