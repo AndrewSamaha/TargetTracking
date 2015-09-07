@@ -1,4 +1,6 @@
 var outputdiv = null;
+var shown = false;
+var lastmessage = "notdefined";
 
 function accelerometerUpdate(e) {
    var aX = event.accelerationIncludingGravity.x*1;
@@ -9,7 +11,8 @@ function accelerometerUpdate(e) {
    xPosition = Math.atan2(aY, aZ);
    yPosition = Math.atan2(aX, aZ);
    if (outputdiv) {
-        outputdiv.innerHTML = xPosition + "<br>" + yPosition;
+        outputdiv.innerHTML = lastmessage = xPosition + "<br>" + yPosition;
+       
    }
 }
 
@@ -34,6 +37,12 @@ function init() {
 
 function tic() {
     requestAnimationFrame(tic);
+    if (Date.now() > 3000 && shown == false) {
+        shown = true;
+        if (outputdiv) alert("outputdiv exists");
+        else alert("outputdiv does not exists");
+        alert("lastmessage=" + lastmessage);
+    }
 }
 
 window.onload=init;
