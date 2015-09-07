@@ -1,6 +1,7 @@
 var outputdiv = null;
 var shown = false;
 var lastmessage = "notdefined";
+var starttime = 0;
 
 function accelerometerUpdate(e) {
    var aX = event.accelerationIncludingGravity.x*1;
@@ -30,16 +31,20 @@ function init() {
         window.addEventListener("devicemotion", accelerometerUpdate, true);
         
     }
+    starttime = Date.now();
     
     tic();
     
 }
 
+function currenttime() {
+    return Date.now() - starttime;
+}
 
 
 function tic() {
     requestAnimationFrame(tic);
-    if (Date.now() > 3000 && shown == false) {
+    if (currenttime() > 3000 && shown == false) {
         shown = true;
         if (outputdiv) alert("outputdiv exists");
         else alert("outputdiv does not exists");
