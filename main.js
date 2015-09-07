@@ -44,12 +44,12 @@ function currenttime() {
 
 function tic() {
     requestAnimationFrame(tic);
-    if (currenttime() > 3000 && shown == false) {
+    /*if (currenttime() > 3000 && shown == false) {
         shown = true;
         if (outputdiv) alert("outputdiv exists");
         else alert("outputdiv does not exists");
         alert("lastmessage=" + lastmessage);
-    }
+    }*/
 }
 
 window.onload=init;
