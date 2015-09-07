@@ -33,6 +33,9 @@ function init() {
     }
     starttime = Date.now();
     
+    if (window.screen.lockOrientation("landscape")) {
+    }
+    
     tic();
     
 }
