@@ -4,6 +4,10 @@ var lastmessage = "notdefined";
 var starttime = 0;
 var orientationmsg = "notdefined";
 
+var scene;
+var camera;
+var remderer;
+var gamestarttime;
 
 function accelerometerUpdate(e) {
    var aX = event.accelerationIncludingGravity.x*1;
@@ -50,6 +54,12 @@ function init() {
     goFS.addEventListener("touchend", startgame, false);
     
     var maincanvas = document.getElementById("maincanvas");
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    
+    gamestarttime = -1;
     
     //goFS.addEventListener("touchstart", startgame, false);
     tic();
@@ -63,6 +73,14 @@ function startgame() {
     window.scrollTo(0,1);
     document.getElementById("startbutton").style.visibility = "hidden";
     document.body.requestFullscreen();
+    document.body.appendChild( renderer.domElement );
+    var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    var cube = new THREE.Mesh( geometry, material );
+    scene.add( cube );
+
+    camera.position.z = 5;
+    gamestarttime = Date.now();
 }
 
 function currenttime() {
@@ -72,6 +90,7 @@ function currenttime() {
 
 function tic() {
     requestAnimationFrame(tic);
+    renderer.render( scene, camera );
     /*if (currenttime() > 3000 && shown == false) {
         shown = true;
         if (outputdiv) alert("outputdiv exists");
