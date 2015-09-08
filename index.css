@@ -10,6 +10,7 @@
     position: fixed;
     right: 30%;
     text-align: center;
+    z-index: 100;
     /*display: inline;*/
 /*    display: inline-block;*/
 }
@@ -24,6 +25,7 @@ canvas
     position: fixed;
     right: 0%;
     text-align: center;
+    z-index: -1;
 }
 /* Force-directed graphs */
 .link {
