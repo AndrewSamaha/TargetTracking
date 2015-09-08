@@ -71,7 +71,7 @@ function init() {
 
 
 function startgame() {
-    window.scrollTo(0,1);
+    //window.scrollTo(0,1);
     document.getElementById("startbutton").style.visibility = "hidden";
     //document.body.requestFullscreen();
     document.body.appendChild( renderer.domElement );
