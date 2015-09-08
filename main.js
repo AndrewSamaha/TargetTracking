@@ -4,6 +4,7 @@ var lastmessage = "notdefined";
 var starttime = 0;
 var orientationmsg = "notdefined";
 
+
 function accelerometerUpdate(e) {
    var aX = event.accelerationIncludingGravity.x*1;
    var aY = event.accelerationIncludingGravity.y*1;
@@ -47,31 +48,21 @@ function init() {
     var goFS = document.getElementById("startbutton");
     goFS.addEventListener("click", startgame, false);
     goFS.addEventListener("touchend", startgame, false);
+    
+    var maincanvas = document.getElementById("maincanvas");
+    
     //goFS.addEventListener("touchstart", startgame, false);
     tic();
     
 }
 
-function toggleFullScreen() {
-  var doc = window.document;
-  var docEl = doc.documentElement;
 
-  var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-  var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
-  if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-    requestFullScreen.call(docEl);
-  }
-  else {
-    cancelFullScreen.call(doc);
-  }
-}
 
 function startgame() {
     window.scrollTo(0,1);
     document.getElementById("startbutton").style.visibility = "hidden";
     document.body.requestFullscreen();
-    toggleFullScreen();
 }
 
 function currenttime() {
