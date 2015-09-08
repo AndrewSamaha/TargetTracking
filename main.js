@@ -72,7 +72,7 @@ function init() {
 function startgame() {
     window.scrollTo(0,1);
     document.getElementById("startbutton").style.visibility = "hidden";
-    document.body.requestFullscreen();
+    //document.body.requestFullscreen();
     document.body.appendChild( renderer.domElement );
     var geometry = new THREE.BoxGeometry( 1, 1, 1 );
     var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
