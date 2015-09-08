@@ -19,7 +19,7 @@ function accelerometerUpdate(e) {
    xPosition = Math.atan2(aY, aZ);
    yPosition = Math.atan2(aX, aZ);
    if (outputdiv) {
-        outputdiv.innerHTML = lastmessage = xPosition + "<br>" + yPosition + "<br>" + orientationmsg;
+        //outputdiv.innerHTML = lastmessage = xPosition + "<br>" + yPosition + "<br>" + orientationmsg;
        
    }
 }
