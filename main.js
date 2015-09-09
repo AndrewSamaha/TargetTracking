@@ -61,7 +61,7 @@ function accelerometerUpdate(e) {
             console.log("initial positions calculated, sig=" + sig + " scaler=" + scaler);
             console.log("will update automatically");
         } else {
-            if (calc == "median" && Math.random() < .1) {
+            if (calc == "median" && Math.random() < .05) {
                 //update center
                 var xLastInitialPosition = xInitialPosition;
                 var yLastInitialPosition = yInitialPosition;
@@ -75,9 +75,13 @@ function accelerometerUpdate(e) {
                 yInitialPosition = yInitialPositions[Math.floor(yInitialPositions.length / 2)];
                 var xdiff = xLastInitialPosition - xInitialPosition;
                 var ydiff = yLastInitialPosition - yInitialPosition;
-                console.log("updated center");
-                console.log("\txInitialPosition = " + xInitialPosition + " xdelta=" + xdiff);
-                console.log("\tyInitialPosition = " + yInitialPosition + " ydelta=" + ydiff);
+                if (xdiff == 0 && ydiff == 0) {
+                    console.log(Date.now() + " updated center, no change");
+                } else {
+                    console.log("updated center");
+                    console.log("\txInitialPosition = " + xInitialPosition + " xdelta=" + xdiff);
+                    console.log("\tyInitialPosition = " + yInitialPosition + " ydelta=" + ydiff);
+                }
             }
         }
         
