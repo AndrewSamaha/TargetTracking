@@ -59,6 +59,7 @@ function accelerometerUpdate(e) {
             console.log("\txInitialPosition = " + xInitialPosition);
             console.log("\tyInitialPosition = " + yInitialPosition);
             console.log("initial positions calculated, sig=" + sig + " scaler=" + scaler);
+            console.log("will update automatically");
         } else {
             if (calc == "median" && Math.random() < .1) {
                 //update center
