@@ -40,8 +40,8 @@ function accelerometerUpdate(e) {
                 xsum += xInitialPositions[i];
                 ysum += yInitialPositions[i];
             }
-            xInitialPosition = xsum / xPositionDefault.length;
-            yInitialPosition = ysum / yPositionDefault.length;
+            xInitialPosition = xsum / xInitialPositions.length;
+            yInitialPosition = ysum / yInitialPositions.length;
         }
         xPositionUsable = xInitialPosition - xPosition;
         yPositionUsable = yInitialPosition - yPosition;
