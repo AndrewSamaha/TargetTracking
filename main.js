@@ -33,6 +33,7 @@ function accelerometerUpdate(e) {
         xInitialPositions.push(xPosition);
         yInitialPositions.push(yPosition);
     } else {
+        var sig = 50;
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
@@ -42,8 +43,10 @@ function accelerometerUpdate(e) {
             }
             xInitialPosition = xsum / xInitialPositions.length;
             yInitialPosition = ysum / yInitialPositions.length;
+            console.log("initial positions calculated, sig=" + sig);
         }
-        var sig = 50;
+        
+
         xPositionUsable = Math.floor(sig*(xInitialPosition - xPosition))/sig;
         yPositionUsable = Math.floor(sig*(yInitialPosition - yPosition))/sig;
     }
