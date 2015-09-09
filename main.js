@@ -18,7 +18,7 @@ var xInitialPosition = 1010;
 var yInitialPosition;
 var xPositionUsable;
 var yPositionUsable;
-var numAccelSamples = 10;
+var numAccelSamples = 30;
 
 function accelerometerUpdate(e) {
     var aX = event.accelerationIncludingGravity.x*1;
