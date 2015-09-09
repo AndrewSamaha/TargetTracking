@@ -36,9 +36,9 @@ function accelerometerUpdate(e) {
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
-            for (i = 0; i < xPositionDefault.length; i++) {
-                xsum += xPositionDefault[i];
-                ysum += yPositionDefault[i];
+            for (i = 0; i < xInitialPositions.length; i++) {
+                xsum += xInitialPositions[i];
+                ysum += yInitialPositions[i];
             }
             xInitialPosition = xsum / xPositionDefault.length;
             yInitialPosition = ysum / yPositionDefault.length;
