@@ -34,6 +34,7 @@ function accelerometerUpdate(e) {
         yInitialPositions.push(yPosition);
     } else {
         var sig = 200;
+        var scaler = 5;
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
@@ -52,11 +53,11 @@ function accelerometerUpdate(e) {
                 xInitialPosition = xInitialPositions[Math.floor(xInitialPositions.length / 2)];
                 yInitialPosition = yInitialPositions[Math.floor(yInitialPositions.length / 2)];
             }
-            console.log("initial positions calculated, sig=" + sig);
+            console.log("initial positions calculated, sig=" + sig + " scaler=" + scaler);
         }
         
-        xPositionUsable = Math.floor((xInitialPosition - xPosition)*sig)/sig;
-        yPositionUsable = Math.floor((yInitialPosition - yPosition)*sig)/sig;
+        xPositionUsable = Math.floor((xInitialPosition - xPosition)*sig/scaler)/sig;
+        yPositionUsable = Math.floor((yInitialPosition - yPosition)*sig/scaler)/sig;
     }
 
 }
@@ -132,8 +133,8 @@ function tic() {
     if (gamestarttime == -1) return;
     if (xInitialPosition == 1010) return;
     
-    cube.rotation.x -= xPositionUsable / 5;
-    cube.rotation.y += yPositionUsable / 5;
+    cube.rotation.x -= xPositionUsable;
+    cube.rotation.y += yPositionUsable;
     renderer.render( scene, camera );
     /*if (currenttime() > 3000 && shown == false) {
         shown = true;
