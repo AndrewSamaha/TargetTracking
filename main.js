@@ -35,10 +35,12 @@ function accelerometerUpdate(e) {
     } else {
         var sig = 1000;
         var scaler = 100;
+        var calc = "median";
+        
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
-            var calc = "median";
+            
             if (calc == "average") {
                 for (i = 0; i < xInitialPositions.length; i++) {
                     xsum += xInitialPositions[i];
@@ -57,6 +59,18 @@ function accelerometerUpdate(e) {
             console.log("\txInitialPosition = " + xInitialPosition);
             console.log("\tyInitialPosition = " + yInitialPosition);
             console.log("initial positions calculated, sig=" + sig + " scaler=" + scaler);
+        } else {
+            if (calc == "median" && Math.random() < .1) {
+                //update center
+                xInitialPositions.shift();
+                yInitialPositions.shift();
+                xInitialPositions.push(xPosition);
+                yInitialPositions.push(yPosition);
+                xInitialPositions.sort();
+                yInitialPositions.sort();
+                xInitialPosition = xInitialPositions[Math.floor(xInitialPositions.length / 2)];
+                yInitialPosition = yInitialPositions[Math.floor(yInitialPositions.length / 2)];
+            }
         }
         
         xPositionUsable = Math.floor((xInitialPosition - xPosition)*sig/scaler)/sig;
