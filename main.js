@@ -112,7 +112,7 @@ function startgame() {
     document.getElementById("startbutton").style.visibility = "hidden";
     //document.body.requestFullscreen();
     document.body.appendChild( renderer.domElement );
-    var geometry = new THREE.BoxGeometry( 5, 5, 5 );
+    var geometry = new THREE.BoxGeometry( 10, 10, 10 );
     //var material = new THREE.MeshBasicMaterial( { linewidth: .1, color: 0x00ff00 } );
     var material = new THREE.LineBasicMaterial({ linewidth: 1, color: 0x00ff00 });
     cube = new THREE.Mesh( geometry, material );
