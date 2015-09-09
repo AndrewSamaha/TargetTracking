@@ -43,8 +43,9 @@ function accelerometerUpdate(e) {
             xInitialPosition = xsum / xInitialPositions.length;
             yInitialPosition = ysum / yInitialPositions.length;
         }
-        xPositionUsable = Math.floor(100*(xInitialPosition - xPosition))/100;
-        yPositionUsable = Math.floor(100*(yInitialPosition - yPosition))/100;
+        var sig = 50;
+        xPositionUsable = Math.floor(sig*(xInitialPosition - xPosition))/sig;
+        yPositionUsable = Math.floor(sig*(yInitialPosition - yPosition))/sig;
     }
 
 }
