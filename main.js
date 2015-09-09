@@ -62,6 +62,8 @@ function accelerometerUpdate(e) {
         } else {
             if (calc == "median" && Math.random() < .1) {
                 //update center
+                var xLastInitialPosition = xInitialPosition;
+                var yLastInitialPosition = yInitialPosition;
                 xInitialPositions.shift();
                 yInitialPositions.shift();
                 xInitialPositions.push(xPosition);
@@ -70,6 +72,11 @@ function accelerometerUpdate(e) {
                 yInitialPositions.sort();
                 xInitialPosition = xInitialPositions[Math.floor(xInitialPositions.length / 2)];
                 yInitialPosition = yInitialPositions[Math.floor(yInitialPositions.length / 2)];
+                var xdiff = xLastInitialPosition - xInitialPosition;
+                var ydiff = yLastInitialPosition - yInitialPosition;
+                console.log("updated center");
+                console.log("\txInitialPosition = " + xInitialPosition + " xdelta=" + xdiff);
+                console.log("\tyInitialPosition = " + yInitialPosition + " ydelta=" + ydiff);
             }
         }
         
