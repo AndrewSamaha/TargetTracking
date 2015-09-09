@@ -55,8 +55,8 @@ function accelerometerUpdate(e) {
             console.log("initial positions calculated, sig=" + sig);
         }
         
-        xPositionUsable = xInitialPosition - Math.floor(xPosition*sig)/sig;
-        yPositionUsable = yInitialPosition - Math.floor(yPosition*sig)/sig;
+        xPositionUsable = Math.floor((xInitialPosition - xPosition)*sig)/sig;
+        yPositionUsable = Math.floor((yInitialPosition - yPosition)*sig)/sig;
     }
 
 }
