@@ -36,7 +36,8 @@ function accelerometerUpdate(e) {
         var sig = 1000;
         var scaler = 100;
         var calc = "median";
-        
+        var update = false;
+        var change_detected = false;
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
@@ -63,6 +64,7 @@ function accelerometerUpdate(e) {
         } else {
             if (calc == "median" && Math.random() < .05) {
                 //update center
+                update = true;
                 var xLastInitialPosition = xInitialPosition;
                 var yLastInitialPosition = yInitialPosition;
                 xInitialPositions.shift();
@@ -78,6 +80,7 @@ function accelerometerUpdate(e) {
                 if (xdiff == 0 && ydiff == 0) {
                     console.log(Date.now() + " updated center, no change");
                 } else {
+                    change_detected = true;
                     console.log("updated center");
                     console.log("\txInitialPosition = " + xInitialPosition + " xdelta=" + xdiff);
                     console.log("\tyInitialPosition = " + yInitialPosition + " ydelta=" + ydiff);
@@ -87,6 +90,12 @@ function accelerometerUpdate(e) {
         
         xPositionUsable = Math.floor((xInitialPosition - xPosition)*sig/scaler)/sig;
         yPositionUsable = Math.floor((yInitialPosition - yPosition)*sig/scaler)/sig;
+        
+        if (update && !change_detected && (xPositionUsable > 0 || yPositionUsable > 0)) {
+            console.log("\tchange occurred without detection!");
+            console.log("\t\txPositionUsable=" + xPositionUsable);
+            console.log("\t\tyPositionUsable=" + yPositionUsable);
+        }
     }
 
 }
