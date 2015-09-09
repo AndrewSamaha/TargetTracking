@@ -160,7 +160,7 @@ function startgame() {
     cube = new THREE.Mesh( geometry, material );
     scene.add( cube );
 
-    camera.position.z = 5;
+    camera.position.z = 25;
     gamestarttime = Date.now();
 }
 
