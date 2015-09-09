@@ -35,7 +35,7 @@ function accelerometerUpdate(e) {
         yInitialPositions.push(yPosition);
     } else {
         var sig = 100;
-        var scaler = 50;
+        var scaler = 10;
         var calc = "median";
         var update = false;
         var change_detected = false;
