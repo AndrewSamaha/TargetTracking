@@ -155,9 +155,11 @@ function startgame() {
     //document.body.requestFullscreen();
     document.body.appendChild( renderer.domElement );
     var geometry = new THREE.BoxGeometry( 10, 10, 10 );
-    var material = new THREE.MeshBasicMaterial( {  wireframe: true, color: 0x00ff00 } );
+//    var material = new THREE.MeshBasicMaterial( {  wireframe: true, color: 0x00ff00 } );
+    var material = new THREE.MeshDepthMaterial();
     //var material = new THREE.LineBasicMaterial({ linewidth: 1, wireframe: true}); //, color: 0x00ff00 });
     cube = new THREE.Mesh( geometry, material );
+
     scene.add( cube );
 
     camera.position.z = 25;
