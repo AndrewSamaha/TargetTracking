@@ -18,7 +18,7 @@ var xInitialPosition = 1010;
 var yInitialPosition;
 var xPositionUsable;
 var yPositionUsable;
-var numAccelSamples = 30;
+var numAccelSamples = 300;
 
 function accelerometerUpdate(e) {
     var aX = event.accelerationIncludingGravity.x*1;
@@ -119,8 +119,8 @@ function tic() {
     if (gamestarttime == -1) return;
     if (xInitialPosition == 1010) return;
     
-    cube.rotation.x += xPositionUsable / 4;
-    cube.rotation.y += yPositionUsable / 4;
+    cube.rotation.x += xPositionUsable / 5;
+    cube.rotation.y += yPositionUsable / 5;
     renderer.render( scene, camera );
     /*if (currenttime() > 3000 && shown == false) {
         shown = true;
