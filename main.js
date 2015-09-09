@@ -10,18 +10,43 @@ var remderer;
 var cube;
 var gamestarttime;
 
+var xPosition;
+var yPosition;
+var xInitialPositions = [];
+var yInitialPositions = [];
+var xInitialPosition = 1010;
+var yInitialPosition;
+var xPositionUsable;
+var yPositionUsable;
+var numAccelSamples = 10;
+
 function accelerometerUpdate(e) {
-   var aX = event.accelerationIncludingGravity.x*1;
-   var aY = event.accelerationIncludingGravity.y*1;
-   var aZ = event.accelerationIncludingGravity.z*1;
-   //The following two lines are just to calculate a
-   // tilt. Not really needed. 
-   xPosition = Math.atan2(aY, aZ);
-   yPosition = Math.atan2(aX, aZ);
-   if (outputdiv) {
-        //outputdiv.innerHTML = lastmessage = xPosition + "<br>" + yPosition + "<br>" + orientationmsg;
-       
-   }
+    var aX = event.accelerationIncludingGravity.x*1;
+    var aY = event.accelerationIncludingGravity.y*1;
+    var aZ = event.accelerationIncludingGravity.z*1;
+    //The following two lines are just to calculate a
+    // tilt. Not really needed. 
+    xPosition = Math.atan2(aY, aZ);
+    yPosition = Math.atan2(aX, aZ);
+    
+    if (xInitialPositions.length < numAccelSamples) {
+        xInitialPositions.push(xPosition);
+        yInitialPositions.push(yPosition);
+    } else {
+        if (xInitialPosition == 1010) {
+            var xsum = 0, xavg;
+            var ysum = 0, yavg;
+            for (i = 0; i < xPositionDefault.length; i++) {
+                xsum += xPositionDefault[i];
+                ysum += yPositionDefault[i];
+            }
+            xInitialPosition = xsum / xPositionDefault.length;
+            yInitialPosition = ysum / yPositionDefault.length;
+        }
+        xPositionUsable = xInitialPosition - xPosition;
+        yPositionUsable = yInitialPosition - yPosition;
+    }
+
 }
 
 function init() {
@@ -92,8 +117,10 @@ function currenttime() {
 function tic() {
     requestAnimationFrame(tic);
     if (gamestarttime == -1) return;
-    cube.rotation.x += 0.1;
-    cube.rotation.y += 0.1;
+    if (xInitialPosition == 1010) return;
+    
+    cube.rotation.x += xPositionUsable / 2;
+    cube.rotation.y += yPositionUsable / 2;
     renderer.render( scene, camera );
     /*if (currenttime() > 3000 && shown == false) {
         shown = true;
