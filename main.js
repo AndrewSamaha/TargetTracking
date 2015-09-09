@@ -18,7 +18,7 @@ var xInitialPosition = 1010;
 var yInitialPosition;
 var xPositionUsable;
 var yPositionUsable;
-var numAccelSamples = 150;
+var numAccelSamples = 300;
 
 function accelerometerUpdate(e) {
     var aX = event.accelerationIncludingGravity.x*1;
@@ -34,7 +34,7 @@ function accelerometerUpdate(e) {
         yInitialPositions.push(yPosition);
     } else {
         var sig = 200;
-        var scaler = 5;
+        var scaler = 10;
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
@@ -53,6 +53,9 @@ function accelerometerUpdate(e) {
                 xInitialPosition = xInitialPositions[Math.floor(xInitialPositions.length / 2)];
                 yInitialPosition = yInitialPositions[Math.floor(yInitialPositions.length / 2)];
             }
+            console.log("num samples=" + xInitialPositions.length);
+            console.log("\txInitialPosition = " + xInitialPosition);
+            console.log("\tyInitialPosition = " + yInitialPosition);
             console.log("initial positions calculated, sig=" + sig + " scaler=" + scaler);
         }
         
