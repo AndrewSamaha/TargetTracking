@@ -171,8 +171,8 @@ function tic() {
     if (gamestarttime == -1) return;
     if (xInitialPosition == 1010) return;
     
-    cube.rotation.x -= xPositionUsable;
-    cube.rotation.y += yPositionUsable;
+    if (xPositionUsable > 0) cube.rotation.x -= xPositionUsable;
+    if (yPositionUsable > 0) cube.rotation.y += yPositionUsable;
     renderer.render( scene, camera );
     /*if (currenttime() > 3000 && shown == false) {
         shown = true;
