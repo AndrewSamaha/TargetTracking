@@ -34,7 +34,7 @@ function accelerometerUpdate(e) {
         yInitialPositions.push(yPosition);
     } else {
         var sig = 1000;
-        var scaler = 10;
+        var scaler = 100;
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
