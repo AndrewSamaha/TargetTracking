@@ -119,7 +119,7 @@ function tic() {
     if (gamestarttime == -1) return;
     if (xInitialPosition == 1010) return;
     
-    cube.rotation.x += xPositionUsable / 5;
+    cube.rotation.x -= xPositionUsable / 5;
     cube.rotation.y += yPositionUsable / 5;
     renderer.render( scene, camera );
     /*if (currenttime() > 3000 && shown == false) {
