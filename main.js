@@ -21,6 +21,7 @@ var yPositionUsable;
 var numAccelSamples = 300;
 
 function accelerometerUpdate(e) {
+    if (gamestarttime == -1) return;
     var aX = event.accelerationIncludingGravity.x*1;
     var aY = event.accelerationIncludingGravity.y*1;
     var aZ = event.accelerationIncludingGravity.z*1;
@@ -33,11 +34,13 @@ function accelerometerUpdate(e) {
         xInitialPositions.push(xPosition);
         yInitialPositions.push(yPosition);
     } else {
-        var sig = 1000;
-        var scaler = 100;
+        var sig = 100;
+        var scaler = 50;
         var calc = "median";
         var update = false;
         var change_detected = false;
+        var option_update = false;
+        
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
@@ -62,7 +65,7 @@ function accelerometerUpdate(e) {
             console.log("initial positions calculated, sig=" + sig + " scaler=" + scaler);
             console.log("will update automatically");
         } else {
-            if (calc == "median" && Math.random() < .05) {
+            if (option_update && calc == "median" && Math.random() < .05) {
                 //update center
                 update = true;
                 var xLastInitialPosition = xInitialPosition;
