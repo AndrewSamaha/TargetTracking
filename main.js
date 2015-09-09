@@ -33,7 +33,7 @@ function accelerometerUpdate(e) {
         xInitialPositions.push(xPosition);
         yInitialPositions.push(yPosition);
     } else {
-        var sig = 20;
+        var sig = 200;
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
