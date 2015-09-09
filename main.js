@@ -91,7 +91,7 @@ function accelerometerUpdate(e) {
         xPositionUsable = Math.floor((xInitialPosition - xPosition)*sig/scaler)/sig;
         yPositionUsable = Math.floor((yInitialPosition - yPosition)*sig/scaler)/sig;
         
-        if (update && !change_detected && (xPositionUsable > 0 || yPositionUsable > 0)) {
+        if (/*update && !change_detected && */(xPositionUsable > 0 || yPositionUsable > 0)) {
             console.log("\tchange occurred without detection!");
             console.log("\t\txPositionUsable=" + xPositionUsable);
             console.log("\t\tyPositionUsable=" + yPositionUsable);
