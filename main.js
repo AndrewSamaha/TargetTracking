@@ -49,8 +49,8 @@ function accelerometerUpdate(e) {
             } else if (calc == "median") {
                 xInitialPositions.sort();
                 yInitialPositions.sort();
-                xInitialPosition = xInitialPosition[Math.floor(xInitialPositions.length / 2)];
-                yInitialPosition = yInitialPosition[Math.floor(yInitialPositions.length / 2)];
+                xInitialPosition = xInitialPositions[Math.floor(xInitialPositions.length / 2)];
+                yInitialPosition = yInitialPositions[Math.floor(yInitialPositions.length / 2)];
             }
             console.log("initial positions calculated, sig=" + sig);
         }
