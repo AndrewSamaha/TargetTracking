@@ -18,7 +18,7 @@ var xInitialPosition = 1010;
 var yInitialPosition;
 var xPositionUsable;
 var yPositionUsable;
-var numAccelSamples = 300;
+var numAccelSamples = 500;
 
 function accelerometerUpdate(e) {
     var aX = event.accelerationIncludingGravity.x*1;
@@ -37,18 +37,26 @@ function accelerometerUpdate(e) {
         if (xInitialPosition == 1010) {
             var xsum = 0, xavg;
             var ysum = 0, yavg;
-            for (i = 0; i < xInitialPositions.length; i++) {
-                xsum += xInitialPositions[i];
-                ysum += yInitialPositions[i];
+            var calc = "median";
+            if (calc == "average") {
+                for (i = 0; i < xInitialPositions.length; i++) {
+                    xsum += xInitialPositions[i];
+                    ysum += yInitialPositions[i];
+                }
+                
+                xInitialPosition = xsum / xInitialPositions.length;
+                yInitialPosition = ysum / yInitialPositions.length;
+            } else if (calc == "median) {
+                xInitialPositions.sort();
+                yInitialPositions.sort();
+                xInitialPosition = xInitialPosition[Math.floor(xInitialPositions.length / 2)];
+                yInitialPosition = yInitialPosition[Math.floor(yInitialPositions.length / 2)];
             }
-            xInitialPosition = xsum / xInitialPositions.length;
-            yInitialPosition = ysum / yInitialPositions.length;
             console.log("initial positions calculated, sig=" + sig);
         }
         
-
-        xPositionUsable = Math.floor(sig*(xInitialPosition - xPosition))/sig;
-        yPositionUsable = Math.floor(sig*(yInitialPosition - yPosition))/sig;
+        xPositionUsable = xInitialPosition - Math.floor(xPosition*sig)/sig;
+        yPositionUsable = yInitialPosition - Math.floor(yPosition*sig)/sig;
     }
 
 }
