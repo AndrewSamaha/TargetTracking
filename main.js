@@ -46,7 +46,7 @@ function accelerometerUpdate(e) {
                 
                 xInitialPosition = xsum / xInitialPositions.length;
                 yInitialPosition = ysum / yInitialPositions.length;
-            } else if (calc == "median) {
+            } else if (calc == "median") {
                 xInitialPositions.sort();
                 yInitialPositions.sort();
                 xInitialPosition = xInitialPosition[Math.floor(xInitialPositions.length / 2)];
