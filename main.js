@@ -220,7 +220,7 @@ function init() {
     $('input#generate').click(function() {
         var str = "";
         for (var i = 0; i < 100; i++)
-            str += i+": " + root.generate(20) + "<br>";
+            str += i+": " + root.generate(100) + "<P>";
         $('#output').html(str);
     });
 
