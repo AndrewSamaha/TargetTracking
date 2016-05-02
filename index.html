@@ -13,22 +13,25 @@
           ga('create', 'UA-77178459-1', 'auto');
           ga('send', 'pageview');
         </script>
-    </head>
+            </head>
     <body>
+        <style>
+            .mybuttons {  font-size: .9em; background: #f2f2f2; border-radius: 5px; height: 56px; padding: 0px 2px 0px 2px; }
+            .ig-b- { display: inline-block; }
+            .ig-b- img { visibility: hidden; }
+            .ig-b-:hover { background-position: 0 -60px; } .ig-b-:active { background-position: 0 -120px; }
+            .ig-b-16 { width: 16px; height: 16px; background: url(//badges.instagram.com/static/images/ig-badge-sprite-16.png) no-repeat 0 0; }
+            @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2 / 1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
+            .ig-b-16 { background-image: url(//badges.instagram.com/static/images/ig-badge-sprite-16@2x.png); background-size: 60px 178px; } }
+        </style>
+
         <div id=controlsdiv>
             <textarea id=inputsample rows=5 cols=50>Instructions:
             1. Paste text/lyrics/poetry here
             2. Press Analyze
             3. Press Generate</textarea><br>
-            <input id=analyze type=submit value=Analyze><input id=generate type=submit value=Generate>
-            <style>
-                .ig-b- { display: inline-block; }
-                .ig-b- img { visibility: hidden; }
-                .ig-b-:hover { background-position: 0 -60px; } .ig-b-:active { background-position: 0 -120px; }
-                .ig-b-16 { width: 16px; height: 16px; background: url(//badges.instagram.com/static/images/ig-badge-sprite-16.png) no-repeat 0 0; }
-                @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2 / 1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
-                .ig-b-16 { background-image: url(//badges.instagram.com/static/images/ig-badge-sprite-16@2x.png); background-size: 60px 178px; } }
-            </style>
+            <span id=analyze class=mybuttons type=submit value=Analyze>Analyze</span>
+            <span id=generate class=mybuttons type=submit value=Generate>Generate</span>
             <a href="https://www.instagram.com/tripleshotmorning/?ref=badge" class="ig-b- ig-b-16"><img src="//badges.instagram.com/static/images/ig-badge-16.png" alt="Instagram" /></a>
             <br>
         </div>
