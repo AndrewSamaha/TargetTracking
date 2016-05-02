@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Markov Test</title>
+        <title>Markov Poetry Generator</title>
         <script src=jquery-2.2.0.min.js></script>
         <script src=main.js></script>
         <link rel="stylesheet" type="text/css" href="index.css">
@@ -20,7 +20,17 @@
             1. Paste text/lyrics/poetry here
             2. Press Analyze
             3. Press Generate</textarea><br>
-            <input id=analyze type=submit value=Analyze><input id=generate type=submit value=Generate><br>
+            <input id=analyze type=submit value=Analyze><input id=generate type=submit value=Generate>
+            <style>
+                .ig-b- { display: inline-block; }
+                .ig-b- img { visibility: hidden; }
+                .ig-b-:hover { background-position: 0 -60px; } .ig-b-:active { background-position: 0 -120px; }
+                .ig-b-16 { width: 16px; height: 16px; background: url(//badges.instagram.com/static/images/ig-badge-sprite-16.png) no-repeat 0 0; }
+                @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2 / 1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
+                .ig-b-16 { background-image: url(//badges.instagram.com/static/images/ig-badge-sprite-16@2x.png); background-size: 60px 178px; } }
+            </style>
+            <a href="https://www.instagram.com/tripleshotmorning/?ref=badge" class="ig-b- ig-b-16"><img src="//badges.instagram.com/static/images/ig-badge-16.png" alt="Instagram" /></a>
+            <br>
         </div>
         <span id=output></span>
     </body>
