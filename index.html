@@ -1,20 +1,15 @@
 <html>
     <head>
-        <title>Stimulus Tests</title>
-        <script src=threejs.min.js></script>
+        <title>Markov Test</title>
+        <script src=jquery-2.2.0.min.js></script>
         <script src=main.js></script>
         <link rel="stylesheet" type="text/css" href="index.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="manifest" href="http://yoursite.com/manifest.json">
     </head>
     <body>
-        <div id=mxaindiv>
-            <div id=xtrialcontainer></div>
-            <!--canvas id=maincanvas></canvas-->
+        <div id=controlsdiv>
+            <textarea id=inputsample rows=5 cols=50></textarea><br>
+            <input id=analyze type=submit value=Analyze><input id=generate type=submit value=Generate><br>
         </div>
-        <div id=startbutton>start</div>
-        <canvas id=maincanvas></canvas>
+        <span id=output></span>
     </body>
 </html>
