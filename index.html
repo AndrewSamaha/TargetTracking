@@ -1,7 +1,9 @@
 <html>
     <head>
-        <title>Markov Poetry Generator</title>
+        <title>Target</title>
         <script src=jquery-2.2.0.min.js></script>
+        <script src=target.js></script>
+        <script src=shrapnel.js></script>
         <script src=main.js></script>
         <link rel="stylesheet" type="text/css" href="index.css">
         <script>
@@ -13,11 +15,44 @@
           ga('create', 'UA-77178459-1', 'auto');
           ga('send', 'pageview');
         </script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
         <style>
+            * {
+                /* make everything unselectable by default */
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                user-select: none;
+            }
+            #target {
+                position: fixed;
+                /*width: 50px;
+                height: 50px;
+                border-radius: 25px;*/
+                background-color: blue;
+            }
+            #debug {
+                position: fixed;
+                right: 200px;
+                width: 300px;
+                font-size: .75eps;
+                background-color: gray;
+            }
+            .shrapnel {
+                position: fixed;
+                
+                width: 0;
+                height: 0;
+                border-left: 17.2px solid transparent;
+                border-right: 17.2px solid transparent;
+                border-top: 20px solid #f00;
+            }
+            
+            
             .mybuttons {  display: inline-block; position: relative; font-size: .5em; background: #f2f2f2; border-radius: 5px; height: 16px; top: -5px; left: 2px; padding: 0px 2px 0px 2px;  }
             #badgecontainer { padding: 2px 0px 0px 0px; }
+            
             .ig-b- { display: inline-block; }
             .ig-b- img { visibility: hidden; }
             .ig-b-:hover { background-position: 0 -60px; } .ig-b-:active { background-position: 0 -120px; }
@@ -26,21 +61,20 @@
             .ig-b-16 { background-image: url(//badges.instagram.com/static/images/ig-badge-sprite-16@2x.png); background-size: 60px 178px; } }
         </style>
 
-        <div id=controlsdiv>
-            <textarea id=inputsample rows=5 cols=50>Instructions:
-            1. Paste text/lyrics/poetry here
-            2. Press Analyze
-            3. Press Generate</textarea><br>
-
-
-            <input id=analyze class=mybuttons type=submit value=Analyze>
-            <input id=generate class=mybuttons type=submit value=Generate>
-
-            <a href="https://www.instagram.com/tripleshotmorning/?ref=badge" class="ig-b- ig-b-16"><img src="//badges.instagram.com/static/images/ig-badge-16.png" alt="Instagram" /></a>
-
-            <br>
-            
+        <!-- debug -->
+        <div id=debug>
         </div>
+        
+        <!-- Opening screen -->
+        <div id=videodiv>
+        </div>
+        
+        <!-- target
+        <div id=target>
+        </div> -->
+        
+        
+        
         <span id=output></span>
     </body>
 </html>
