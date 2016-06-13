@@ -94,6 +94,7 @@ function tic() {
     dS += "<br>targetX: " + Math.floor(target.$element.offset().left);
     dS += "<br>targetY: " + Math.floor(target.$element.offset().top);
     dS += "<br>lastError: " + lastError;
+    dS += "<br>fps: " + (Math.floor(1000/delta_t));
     $("#debug").html(dS);
     
     shrapnelManager.tic();
