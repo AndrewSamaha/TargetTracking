@@ -1,19 +1,22 @@
 
 
 var DataCollector = function() {
-    this.$element = $("<div id=datacollector></div>");
-    this.$element.css("position","fixed");
-    this.$element.css("left","100px");
-    this.$element.css("width","80%");
-    this.$element.css("height", "100px");
-    this.$element.css("bottom","100px");
-    this.$element.css("overflow-y","scroll");
-    this.$element.css("background","rgba(200,200,200,.5)");
-    this.$element.css("padding","2px 2px 2px 2px");
-    this.$element.css("border-style","solid");
-    this.$element.css("border-width","1px");
-    this.$element.css("font-size",".75em");
-    $("body").append( this.$element );
+    this.debug = 0;
+    if (this.debug) {
+        this.$element = $("<div id=datacollector></div>");
+        this.$element.css("position","fixed");
+        this.$element.css("left","100px");
+        this.$element.css("width","80%");
+        this.$element.css("height", "100px");
+        this.$element.css("bottom","100px");
+        this.$element.css("overflow-y","scroll");
+        this.$element.css("background","rgba(200,200,200,.5)");
+        this.$element.css("padding","2px 2px 2px 2px");
+        this.$element.css("border-style","solid");
+        this.$element.css("border-width","1px");
+        this.$element.css("font-size",".75em");
+        $("body").append( this.$element );
+    }
     /*
     position: fixed;
                 right: 200px;
@@ -29,8 +32,8 @@ var DataCollector = function() {
         if (!datum.hasOwnProperty("event")) datum.event = "undefined";
         if (!datum.hasOwnProperty("time")) datum.time = Date.now();
         this.data.push(datum);
-        this.$element.prepend((Date.now() - this.startTime) + "\t" + JSON.stringify(datum) + "<br>");
-//        this.$element.html(this.$element.html() + "<br>" + JSON.stringify(datum));
+        if (this.debug)
+            this.$element.prepend((Date.now() - this.startTime) + "\t" + JSON.stringify(datum) + "<br>");
     }
     this.click = function(datum) {
         if (!datum.hasOwnProperty("event")) datum.event = "click";
@@ -48,6 +51,7 @@ var delta_t;
 var mX;
 var mY;
 var lastError;
+var debug = 1;
 
 function calculateDistance(t, mouseX, mouseY) {
 
@@ -84,19 +88,21 @@ function tic() {
     target.tic();
     
     //debug
-    var dS = "";
-    dS += "distanceToTarget : " + distanceToTarget;
-    dS += "<br>liveCalculateDist: " + calculateDistance(target, mX, mY);
-    dS += "<br>x: " + target.last_x;
-    dS += "<br>y: " + target.last_y;
-    dS += "<br>mouseX: " + mX;
-    dS += "<br>mouseY: " + mY;
-    dS += "<br>targetX: " + Math.floor(target.$element.offset().left);
-    dS += "<br>targetY: " + Math.floor(target.$element.offset().top);
-    dS += "<br>lastError: " + lastError;
-    dS += "<br>fps: " + (Math.floor(1000/delta_t));
-    $("#debug").html(dS);
-    
+    if (debug && Date.now() % 5 == 0) {
+        var dS = "";
+        /*dS += "distanceToTarget : " + distanceToTarget;
+        dS += "<br>liveCalculateDist: " + calculateDistance(target, mX, mY);
+        dS += "<br>x: " + target.last_x;
+        dS += "<br>y: " + target.last_y;
+        dS += "<br>mouseX: " + mX;
+        dS += "<br>mouseY: " + mY;
+        dS += "<br>targetX: " + Math.floor(target.$element.offset().left);
+        dS += "<br>targetY: " + Math.floor(target.$element.offset().top);
+        dS += "<br>lastError: " + lastError;
+        */
+        dS += "fps: " + (Math.floor(1000/delta_t));
+        $("#debug").html(dS);
+    }
     shrapnelManager.tic();
     delta_t = Date.now() - lastTicTime;
     
