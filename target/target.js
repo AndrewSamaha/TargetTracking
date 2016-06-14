@@ -25,6 +25,7 @@ var Target = function(params) {
     this.totalMisses;
     this.last_x;
     this.last_y;
+    this.explosion_sound;
     
     this.setPosition = function(x,y,caller, other) {
         //if (this.pp.length > 10) return;
@@ -90,7 +91,10 @@ var Target = function(params) {
             this.alive = 0;
             if (this.dataCollector)
                 this.dataCollector.event({event: "targetHit", latency: Date.now() - this.startTime, radius: this.radius, speed: this.speed, misses: this.totalMisses});
-            
+            if (this.explosion_sound) {
+                this.explosion_sound.currentTime = 0;
+                this.explosion_sound.play();
+            }
             if (this.shrapnelManager) this.shrapnelManager.create(Math.floor(Math.random()*8+3), {x: this.$element.offset().left, y: this.$element.offset().top, direction: this.direction, x_sign: this.x_sign, y_sign: this.y_sign});
             if (this.onDeath) this.onDeath();
             if (this.$element.length) {
@@ -134,6 +138,10 @@ var Target = function(params) {
         this.lasttic = Date.now();
         this.startTime = this.lasttic;
         this.totalMisses = 0;
+        
+        
+        if ($("#explosion_sound").length != 0)
+            this.explosion_sound = document.getElementById("explosion_sound");
         
         if (!this.$element || this.$element.length == 0) {
             this.$element = $("<div id=target></div>");
