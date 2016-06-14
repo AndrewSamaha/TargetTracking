@@ -135,7 +135,7 @@ var Shrapnel = function(newposition) {
 
 var ShrapnelManager = function() {
     this.shrapnel = [];
-    this.maxDuration = 6;
+    this.maxDuration = 10;
     this.lastIndex = 0;
     this.tics = 0;
     this.efficiency = 0;
