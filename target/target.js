@@ -92,8 +92,12 @@ var Target = function(params) {
             if (this.dataCollector)
                 this.dataCollector.event({event: "targetHit", latency: Date.now() - this.startTime, radius: this.radius, speed: this.speed, misses: this.totalMisses});
             if (this.explosion_sound) {
-                this.explosion_sound.currentTime = 0;
-                this.explosion_sound.play();
+                try {
+                    this.explosion_sound.currentTime = 0;
+                    this.explosion_sound.play();
+                } catch (e) {
+                    alert(JSON.stringify(e));
+                }
             }
             if (this.shrapnelManager) this.shrapnelManager.create(Math.floor(Math.random()*8+3), {x: this.$element.offset().left, y: this.$element.offset().top, direction: this.direction, x_sign: this.x_sign, y_sign: this.y_sign});
             if (this.onDeath) this.onDeath();
