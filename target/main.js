@@ -52,18 +52,24 @@ var mX;
 var mY;
 var lastError;
 var debug = 1;
+var audioReady = 0;
 
 function calculateDistance(t, mouseX, mouseY) {
 
     return Math.floor(Math.sqrt(Math.pow(mouseX - (t.last_x+t.radius), 2) + Math.pow(mouseY - (t.last_y+t.radius), 2)));
 }
 
+
+
 function newTarget() {
     targetNum++;
     target = {};
     target = new Target({dataCollector: dataCollector});
     target.shrapnelManager = shrapnelManager;
-
+    if (audioReady == 0) {
+        target.explosion_sound.load();
+        audioReady = 1;
+    }
     return target;
 }
 
