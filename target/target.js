@@ -82,6 +82,7 @@ var Target = function(params) {
     }
     
     this.clickHandler = function(e) {
+        if (!this.alive) return;
         //var s = new Shrapnel({x: this.$element.offset().left, y: this.$element.offset().top});
         //console.log("hit " + this.hits + " alive: " + this.alive);
         this.hits++;
@@ -143,15 +144,36 @@ var Target = function(params) {
                           this.radius*2 + Math.random()*( $( window ).height() - this.radius * 4), "init");
         
         
-        
-        this.$element.mousedown((function(e) {
-           this.clickHandler(e);
-           e.stopPropagation();
-        }).bind(this));
-        $("body").mousedown((function(e) {
-            this.missHandler(e);
-            e.stopPropagation();
-        }).bind(this));
+        if (0) {
+            this.$element.mousedown((function(e) {
+               this.clickHandler(e);
+               e.stopPropagation();
+            }).bind(this));
+            
+            $("body").mousedown((function(e) {
+                this.missHandler(e);
+                e.stopPropagation();
+            }).bind(this));
+        } else {
+            this.$element.bind('touchstart', (function(e) {
+               this.clickHandler(e);
+               e.stopPropagation();
+            }).bind(this));
+            this.$element.bind('mousedown', (function(e) {
+               this.clickHandler(e);
+               e.stopPropagation();
+            }).bind(this));
+            
+            $("body").bind('touchstart', (function(e) {
+                this.missHandler(e);
+                e.stopPropagation();
+            }).bind(this));
+            $("body").bind('mousedown', (function(e) {
+                this.missHandler(e);
+                e.stopPropagation();
+            }).bind(this));
+
+        }
         
         if (params && params.dataCollector) {
             this.dataCollector = params.dataCollector;
