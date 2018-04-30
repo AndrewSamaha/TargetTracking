@@ -55,7 +55,7 @@ function init() {
       responseRequirement: false,
       label: "VT30sChangeover",
       stateColors: [
-        {state: "running", color: "pink"},
+        {state: "running", color: "#e6ccb3"},
         {state: "paused",  color: "grey"},
         {state: "timedout", color: "green"}
       ],
