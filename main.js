@@ -87,7 +87,7 @@ function init() {
         responseRequirement: true,
         label: "BEH A IN COMPONENT A",
         stateColors: [
-          {state: "running", color: "#b3e6ff"},
+          {state: "running", color: "#ddff99"},
           {state: "paused",  color: "grey"},
           {state: "timedout", color: "green"}
         ],
@@ -98,6 +98,7 @@ function init() {
       });
       return FR1;
     })() );
+    /*
     concurrent.addSchedule( (function() {
       var button = new Button();
       button.create();
@@ -117,16 +118,19 @@ function init() {
         button: button,
         waitForUserAfterTimeout: false,
         //pretimeout_callback: function(s) { changeover.pause(); },
-        timeout_callback: function(s) { /*changeover.unpause();*/ s.start(); }
+        timeout_callback: function(s) { //changeover.unpause();
+        s.start(); }
       });
       return ext;
     })() );
+    */
     return concurrent;
   })() );
 
   componentB.addSchedule( (function() {
     var concurrent = new ConcurrentSchedule();
     concurrent.setLabel("concurrentscheduleB");
+    /*
     concurrent.addSchedule( (function() {
       var button = new Button();
       button.create();
@@ -146,10 +150,13 @@ function init() {
         button: button,
         waitForUserAfterTimeout: false,
         //pretimeout_callback: function(s) { changeover.pause(); },
-        timeout_callback: function(s) { /*changeover.unpause();*/ s.start(); }
+        timeout_callback: function(s) {
+        //changeover.unpause();
+         s.start(); }
       });
       return ext;
     })() );
+    */
     concurrent.addSchedule( (function() {
       var button = new Button();
       button.create();
@@ -168,7 +175,8 @@ function init() {
         button: button,
         waitForUserAfterTimeout: false,
         //pretimeout_callback: function(s) { changeover.pause(); },
-        timeout_callback: function(s) { /*changeover.unpause();*/ s.start(); }
+        timeout_callback: function(s) { //changeover.unpause();
+           s.start(); }
       });
       return FR1;
     })() );
