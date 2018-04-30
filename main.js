@@ -55,7 +55,7 @@ function init() {
       responseRequirement: false,
       label: "VT30sChangeover",
       stateColors: [
-        {state: "running", color: "blue"},
+        {state: "running", color: "pink"},
         {state: "paused",  color: "grey"},
         {state: "timedout", color: "green"}
       ],
@@ -87,7 +87,7 @@ function init() {
         responseRequirement: true,
         label: "BEH A IN COMPONENT A",
         stateColors: [
-          {state: "running", color: "blue"},
+          {state: "running", color: "#b3e6ff"},
           {state: "paused",  color: "grey"},
           {state: "timedout", color: "green"}
         ],
@@ -110,7 +110,7 @@ function init() {
         extinction: true,
         label: "beh b in component a",
         stateColors: [
-          {state: "running", color: "blue"},
+          {state: "running", color: "#cccccc"},
           {state: "paused",  color: "grey"},
           {state: "timedout", color: "green"}
         ],
@@ -139,7 +139,7 @@ function init() {
         extinction: true,
         label: "beh a in component b",
         stateColors: [
-          {state: "running", color: "blue"},
+          {state: "running", color: "#cccccc"},
           {state: "paused",  color: "grey"},
           {state: "timedout", color: "green"}
         ],
@@ -161,7 +161,7 @@ function init() {
         responseRequirement: true,
         label: "BEH B IN COMPONENT B",
         stateColors: [
-          {state: "running", color: "blue"},
+          {state: "running", color: "#b3e6ff"},
           {state: "paused",  color: "grey"},
           {state: "timedout", color: "green"}
         ],
