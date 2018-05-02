@@ -45,7 +45,7 @@ function init() {
   changeover = (function() {
     var button = new Button();
     button.create();
-    button.setPosition($(window).width()/3, $(window).height()*.5, $(window).width()*.4, 100);
+    button.setPosition($(window).width()/3, $(window).height()*.5, $(window).width()*.4, 200);
     var d = new VIDistribution(30000, 12);
 
     var VT30 = new Schedule();
@@ -79,7 +79,7 @@ function init() {
       console.log("inside concurrent.addSchedule");
       var button = new Button();
       button.create();
-      button.setPosition(15, 15, $(window).width()*.4, 100);
+      button.setPosition(15, 15, $(window).width()*.4, 200);
 
       var FR1 = new Schedule();
       FR1.configure({
@@ -160,7 +160,7 @@ function init() {
     concurrent.addSchedule( (function() {
       var button = new Button();
       button.create();
-      button.setPosition($(window).width()/2, 15, $(window).width()*.4, 100);
+      button.setPosition($(window).width()/2, 15, $(window).width()*.4, 200);
 
       var FR1 = new Schedule();
       FR1.configure({

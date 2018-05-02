@@ -3,7 +3,11 @@ var Button = function() {
   this.div.attr('id',"button" + Math.random());
   this.div.css({
     position: 'fixed',
-    visibility: "visible"
+    visibility: "visible",
+    "overflow-wrap": "break-word",
+    border: "1px solid black",
+    "border-radius": "5px",
+    padding: "5px"
   });
   this.childButtons = [];
 
