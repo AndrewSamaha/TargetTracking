@@ -127,6 +127,17 @@ var Target = function(params) {
             }
         }
     }
+    
+    this.remove = function(e) {
+        if (this.$element.length) {
+            this.$element.off();
+            $("body").off();                
+            this.$element.remove();
+            this.alive = 0;
+            //this.startIn(1500);
+        }
+    }
+
     this.missHandler = function(e) {
         var mouseX = e.pageX;
         var mouseY = e.pageY;
@@ -154,16 +165,16 @@ var Target = function(params) {
     }
 
     this.init = function(params) {
-        console.log('target.init()');
-        this.startAfter = 0;
-        this.maxRadius = 200;
-        this.initialRadius = 100;
-        this.growthRate = .0001;
-        this.alive = 1;
-        this.hits = 0;
-        this.maxHits = 1;
-        this.direction = Math.random() * PI2;
-        this.speed = .10; //px/s
+        console.log('target.init(), params=',params);
+        this.startAfter = params.startAfter || 0;
+        this.maxRadius = params.maxRadius || 200;
+        this.initialRadius = params.initialRadius || 100;
+        this.growthRate = params.growthRate || .0001;
+        this.alive = params.alive || 1;
+        this.hits = params.hits || 0;
+        this.maxHits = params.maxHits || 1;
+        this.direction = params.direction || Math.random() * PI2;
+        this.speed = params.speed || .10; //px/s
         this.lasttic = Date.now();
         this.startTime = this.lasttic;
         this.totalMisses = 0;
@@ -231,3 +242,5 @@ var Target = function(params) {
     
     this.init(params);
 }
+
+export default Target;

@@ -1,3 +1,4 @@
+var PI2 = Math.PI * 2;
 var Shrapnel = function(newposition) {
     this.$element;
     this.direction;
@@ -184,3 +185,5 @@ var ShrapnelManager = function() {
         */
     }
 }
+
+export default ShrapnelManager;
