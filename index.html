@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <title>Target vp</title>
+        
+      <script type="module" crossorigin src="/assets/index.d4ced8aa.js"></script>
+      <link rel="modulepreload" href="/assets/vendor.34f1e898.js">
+      <link rel="stylesheet" href="/assets/index.607e8552.css">
+    </head>
+    <body>
+        <audio id=explosion_sound src=audio/coin.wav preload=none>audio est brokez</audio>
+        <style>
+            * {
+                /* make everything unselectable by default */
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                user-select: none;
+            }
+            #target {
+                position: fixed;
+                /*width: 50px;
+                height: 50px;
+                border-radius: 25px;*/
+                background-color: white;
+            }
+            #debug {
+                position: fixed;
+                right: 200px;
+                width: 300px;
+                font-size: .75eps;
+                background-color: gray;
+            }
+            .shrapnel {
+                position: fixed;
+                
+                width: 0;
+                height: 0;
+                border-left: 17.2px solid transparent;
+                border-right: 17.2px solid transparent;
+                border-top: 20px solid #f00;
+            }
+            
+            
+            .mybuttons {  display: inline-block; position: relative; font-size: .5em; background: #f2f2f2; border-radius: 5px; height: 16px; top: -5px; left: 2px; padding: 0px 2px 0px 2px;  }
+            #badgecontainer { padding: 2px 0px 0px 0px; }
+            
+            .ig-b- { display: inline-block; }
+            .ig-b- img { visibility: hidden; }
+            .ig-b-:hover { background-position: 0 -60px; } .ig-b-:active { background-position: 0 -120px; }
+            .ig-b-16 { width: 16px; height: 16px; background: url(//badges.instagram.com/static/images/ig-badge-sprite-16.png) no-repeat 0 0; }
+            @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2 / 1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
+            .ig-b-16 { background-image: url(//badges.instagram.com/static/images/ig-badge-sprite-16@2x.png); background-size: 60px 178px; } }
+        </style>
+
+        <!-- debug -->
+        <div id=debug>
+        </div>
+        
+        <!-- Opening screen -->
+        <div id=videodiv>
+        </div>
+        
+        <!-- target
+        <div id=target>
+        </div> -->
+        
+        
+        
+        <span id=output></span>
+        <script src=./jquery-2.2.0.min.js> type=module</script>
+        
+        
+        
+    </body>
+</html>
