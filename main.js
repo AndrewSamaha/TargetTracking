@@ -10,9 +10,20 @@ var TargetSettings = {
     speed: .1,
     growthRate: .0001
 };
-
+var GameSettings = {
+    gameMode: 'MoveAndGrow'
+};
 const gui = new dat.GUI({name: 'Settings'});
 var GameSelector = gui.addFolder('Game Selector');
+
+// GameSelector.add(
+//     GameSettings,
+//     'gameMode',
+//     {
+//         MoveAndGrow: 'MoveAndGrow',
+//         Stationary: 'Stationary'
+//     }
+// );
 
 GameSelector.add({ 
     Restart: function(){ 
@@ -20,7 +31,8 @@ GameSelector.add({
         init(TargetSettings); 
 
     }},
-    'Restart');
+    'Restart'
+);
 
 
 var TargetSettingsGUI = gui.addFolder('Target Settings');
@@ -33,6 +45,10 @@ TargetSettingsGUI.add(TargetSettings, 'speed', 0, .2);
 TargetSettingsGUI.add(TargetSettings, 'growthRate', 0, .001);
 
 let game = null;
+
+const gameTypes = [
+    { name: 'MoveAndGrow', game: SingleMovingTarget }
+];
 
 function init(targetParams) {
     // this will become smt.startGame()

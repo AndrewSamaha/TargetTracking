@@ -50,3 +50,19 @@ td
     width:200px;
 }
 
+#target {
+  animation-name: color;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+}
+@keyframes color {
+    0% {
+      background-color: white;
+    }
+    50% {
+      background-color: #4285f4;
+    }
+    100% {
+      background-color: #222;
+    }
+  }
