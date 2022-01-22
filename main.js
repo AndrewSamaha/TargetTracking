@@ -1,3 +1,5 @@
+import jQuery from "jquery";
+Object.assign(window, { $: jQuery, jQuery })
 import * as dat from 'dat.gui';
 import ShrapnelManager from './shrapnel';
 import Target from './target';

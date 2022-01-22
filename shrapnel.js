@@ -1,3 +1,4 @@
+import {$,jQuery} from 'jquery';
 var PI2 = Math.PI * 2;
 var Shrapnel = function(newposition) {
     this.$element;

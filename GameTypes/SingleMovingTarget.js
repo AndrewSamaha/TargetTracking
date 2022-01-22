@@ -1,3 +1,4 @@
+import {$,jQuery} from 'jquery';
 import { calculateDistance } from "../helpers/math";
 import Target from "../target";
 

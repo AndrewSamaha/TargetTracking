@@ -1,6 +1,10 @@
+import jQuery from "jquery";
+Object.assign(window, { $: jQuery, jQuery });
+
 var PI2 = Math.PI * 2;
 //a wrapper function to handle stimuli
 var Target = function(params) {
+    this.$ = $;
     this.$element;// = $("#target");
     this.direction;
     this.speed;
@@ -180,7 +184,8 @@ var Target = function(params) {
         this.totalMisses = 0;
         
         
-        if ($("#explosion_sound").length != 0)
+        // if ($("#explosion_sound").length != 0)
+        if (document.getElementById("explosion_sound"))
             this.explosion_sound = document.getElementById("explosion_sound");
         
         if (!this.$element || this.$element.length == 0) {
