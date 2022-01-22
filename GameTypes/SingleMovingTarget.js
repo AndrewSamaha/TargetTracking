@@ -1,4 +1,6 @@
-import {$,jQuery} from 'jquery';
+import jQuery from "jquery";
+Object.assign(window, { $: jQuery, jQuery })
+
 import { calculateDistance } from "../helpers/math";
 import Target from "../target";
 

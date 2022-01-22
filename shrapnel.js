@@ -1,4 +1,6 @@
-import {$,jQuery} from 'jquery';
+import jQuery from "jquery";
+Object.assign(window, { $: jQuery, jQuery })
+
 var PI2 = Math.PI * 2;
 var Shrapnel = function(newposition) {
     this.$element;
